@@ -49,7 +49,6 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   /// @notice Events
   event RacksTrackMinted(uint baseItemId, uint rackstrackItemId);
   
-
   /// @notice Modifiers
   /// @notice Check that person calling a function is the owner of the Contract
   modifier onlyOwner() {
