@@ -63,7 +63,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   }
 
   modifier onlyOwnerOrAdmin() {
-    require(isOwnerOrAdmin(msg.sender), "User is not the Owner or an Admin");
+    require(_isOwnerOrAdmin(msg.sender), "User is not the Owner or an Admin");
     _;
   }
 
@@ -126,7 +126,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   * @dev Uses Chainlink VRF -> call requestRandomWords method by using o_vrfCoordinator object
   * set as internal because is going to be called only when a case is opened
   */
-  function randomNumber() internal returns(uint256) {
+  function _randomNumber() internal returns(uint256) {
     uint256 s_requestedNumber = i_vrfCoordinator.requestRandomWords(i_gasLane, i_subscriptionId, REQUEST_CONFIRMATIONS, i_callbackGasLimit, NUM_WORDS);
     return s_requestedNumber;
   }
@@ -150,16 +150,16 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   */
   function openCase() public contractIsActive onlyVIP payable returns(uint256) { 
     require(msg.value == casePrice, "User did not pay enough money to open the case");
-    uint256 _randomNumber = randomNumber()/20000; // Get Random Number between 0 and totalSupply
+    uint256 randomNumber = _randomNumber()/20000; // Get Random Number between 0 and totalSupply
     uint256 totalCount=0;
     uint256 gotToken;
 
     for(uint256 i = 0 ; i < s_tokenCount; i++) {
       uint256 _newTotalCount = totalCount + s_maxSupply[i] ;
-      if(_randomNumber > totalCount) {
+      if(randomNumber > totalCount) {
         totalCount = _newTotalCount;
       }else {
-        if (_randomNumber == totalCount - (s_maxSupply[i-1]/2)) { // Probability of getting a RacksTrack
+        if (randomNumber == totalCount - (s_maxSupply[i-1]/2)) { // Probability of getting a RacksTrack
           _burn(address(this), i-1, 1);
           s_maxSupply[i]-=1;
           _mintSupply(msg.sender,1);
@@ -189,7 +189,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   /**
   * @notice Check that item exists (by tokenId)
   */
-  function itemExists(uint256 tokenId) internal view returns (bool) {
+  function _itemExists(uint256 tokenId) internal view returns (bool) {
     require(s_maxSupply[tokenId] > 0);
     return true;
   }
@@ -199,8 +199,8 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   * @dev - Requires that tokenId exists (item is listed)
   * - chance is calculated as item supply divided by total items supply
   */
-  function chanceOfItem(uint256 tokenId) public virtual view returns(uint256) {
-    require(itemExists(tokenId));
+  function _chanceOfItem(uint256 tokenId) public virtual view returns(uint256) {
+    require(_itemExists(tokenId));
     uint256 result = s_maxSupply[tokenId] / s_maxTotalSupply;
     return result;
   }
@@ -238,7 +238,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   */
   function _mintSupply(address receiver, uint256 amount) internal {
       _mint(receiver, s_tokenCount, amount,"");
-      setMaxSupply(s_tokenCount, amount);
+      _setMaxSupply(s_tokenCount, amount);
       s_maxTotalSupply += amount;
       s_tokenCount += 1;
   }
@@ -246,7 +246,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   /**
   * @notice Function used to set maxSupply of each item
   */
-  function setMaxSupply(uint256 tokenId, uint256 amount) internal {
+  function _setMaxSupply(uint256 tokenId, uint256 amount) internal {
       s_maxSupply[tokenId] = amount;
   }
 
@@ -268,7 +268,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   * @notice Check if user is owner of the Contract or has admin role
   * @dev Only callable by the Owner
   */
-  function isOwnerOrAdmin(address user) internal view returns (bool) {
+  function _isOwnerOrAdmin(address user) internal view returns (bool) {
       require(_owner == user || hasRole(ADMIN_ROLE, user));
       return true;
   }
