@@ -149,8 +149,8 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   */
   function openCase() public contractIsActive onlyVIP payable returns(uint256) { 
     require(msg.value == casePrice, "User did not pay enough money to open the case");
-    uint256 randomNumber = _randomNumber()/20000; // Get Random Number between 0 and totalSupply
-    uint256 totalCount=0;
+    uint256 randomNumber = _randomNumber() / 20000; // Get Random Number between 0 and totalSupply
+    uint256 totalCount = 0;
     uint256 gotToken;
 
     for(uint256 i = 0 ; i < s_tokenCount; i++) {
