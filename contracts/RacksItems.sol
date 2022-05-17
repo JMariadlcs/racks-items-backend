@@ -345,7 +345,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   * @dev - returns information stored in s_uris mapping
   * - Any user can check this information
   */
-  function uri(uint256 tokenId) public view returns (string memory) {
+  function uri(uint256 tokenId) override public view returns (string memory) {
     return(s_uris[tokenId]);
   }
 
@@ -356,8 +356,8 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   *  - tokenId: specific item you want to set its uri
   *  - uri: uri wanted to be set
   */
-  function setTokenUri(uint256 tokenId, string memory uri) public onlyOwnerOrAdmin {
+  function setTokenUri(uint256 tokenId, string memory _uri) public onlyOwnerOrAdmin {
         require(bytes(s_uris[tokenId]).length == 0, "Can not set uri twice"); 
-        s_uris[tokenId] = uri; 
+        s_uris[tokenId] = _uri; 
     }
 }
