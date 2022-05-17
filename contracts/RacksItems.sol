@@ -7,11 +7,10 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol"; // to work with COORDINATOR and VRF
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol"; // to use functionalities for Chainlink VRF
+import "base64-sol/base64.sol"; // used to generate ERC1155 URI on-chain
 
 contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2SubscriptionManager
    
-  //FALTA EL MARKETPLACE, Y LA OPCION DE CANJEAR
-
   /**
   * @notice Enum for Contract state -> to let user enter call some functions or not
   */
@@ -45,6 +44,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   /// @notice Mappings
   mapping(address => bool) private s_gotRacksMembers;
   mapping(uint => uint) private s_maxSupply;
+  mapping (uint256 => string) private s_uris; 
 
   /// @notice Events
   event RacksTrackMinted(uint baseItemId, uint rackstrackItemId);
@@ -75,8 +75,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
 
   constructor(address vrfCoordinatorV2, bytes32 gasLane, uint64 subscriptionId, uint32 callbackGasLimit) 
   VRFConsumerBaseV2(vrfCoordinatorV2)
-  ERC1155("https://game.example/api/item/{id}.json"){
-
+  ERC1155("https://bafybeiamy2yqd3m2h36en2bk3nmrr3weiqug7dlz3a7p6iuoctzx7762gm.ipfs.dweb.link/{id}.json"){
     /**
     * Initialization of Chainlink VRF variables
     */
@@ -237,7 +236,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   * - The items (tokens are minted by this contract and deposited into this contract address)
   */
   function _mintSupply(address receiver, uint256 amount) internal {
-      _mint(receiver, s_tokenCount, amount,"");
+      _mint(receiver, s_tokenCount, amount, "");
       _setMaxSupply(s_tokenCount, amount);
       s_maxTotalSupply += amount;
       s_tokenCount += 1;
@@ -338,4 +337,27 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
       s_contractState = ContractState.Active;
     }
   }
+
+  // FUNCTIONS RELATED TO ERC1155 TOKENS
+
+  /**
+  * @notice Used to return token URI by inserting tokenID
+  * @dev - returns information stored in s_uris mapping
+  * - Any user can check this information
+  */
+  function getUri(uint256 tokenId) public view returns (string memory) {
+    return(s_uris[tokenId]);
+  }
+
+  /**
+  * @notice Used to set tokenURI to specific item 
+  * @dev - Only Owner or Admins can call this function
+  * - Need to specify:
+  *  - tokenId: specific item you want to set its uri
+  *  - uri: uri wanted to be set
+  */
+  function setTokenUri(uint256 tokenId, string memory uri) public onlyOwnerOrAdmin {
+        require(bytes(s_uris[tokenId]).length == 0, "Can not set uri twice"); 
+        s_uris[tokenId] = uri; 
+    }
 }
