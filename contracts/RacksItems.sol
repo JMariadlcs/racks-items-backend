@@ -75,7 +75,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
 
   constructor(address vrfCoordinatorV2, bytes32 gasLane, uint64 subscriptionId, uint32 callbackGasLimit) 
   VRFConsumerBaseV2(vrfCoordinatorV2)
-  ERC1155("https://bafybeiamy2yqd3m2h36en2bk3nmrr3weiqug7dlz3a7p6iuoctzx7762gm.ipfs.dweb.link/{id}.json"){
+  ERC1155(""){
     /**
     * Initialization of Chainlink VRF variables
     */
@@ -94,12 +94,12 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
 
     /**
     * Mint of initial supply
-    */
     _mintSupply(address(this), 100000); // Jeans
     _mintSupply(address(this), 1000); // Hoddie 
     _mintSupply(address(this), 50000); // Watch
     _mintSupply(address(this), 1000); // Coat
     _mintSupply(address(this), 30000); // Shoes
+     */
   }
 
   /** 
@@ -345,7 +345,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   * @dev - returns information stored in s_uris mapping
   * - Any user can check this information
   */
-  function getUri(uint256 tokenId) public view returns (string memory) {
+  function uri(uint256 tokenId) public view returns (string memory) {
     return(s_uris[tokenId]);
   }
 
