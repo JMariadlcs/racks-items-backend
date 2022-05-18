@@ -397,4 +397,8 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
     require(address(this).balance > 0, "No funds to withdraw");
     racksToken.transfer(wallet, address(this).balance);
   }
+
+  /// @notice Receive function
+  receive() external payable {
+  }
 }

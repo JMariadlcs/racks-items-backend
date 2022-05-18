@@ -198,4 +198,7 @@ interface IRacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 {
   * - Should specify the wallet address you want to transfer the funds to
   */
   function withdrawAllFunds(address wallet) public;
+
+  /// @notice Receive function
+  receive() external payable;
 }
