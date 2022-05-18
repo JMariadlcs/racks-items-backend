@@ -7,9 +7,9 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol"; // to work with COORDINATOR and VRF
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol"; // to use functionalities for Chainlink VRF
-import "base64-sol/base64.sol"; // used to generate ERC1155 URI on-chain
+import "./IRacksItems.sol"; // RacksItems interface
 
-contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2SubscriptionManager
+contract RacksItems is IRacksItems, ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2SubscriptionManager
    
   /**
   * @notice Enum for Contract state -> to let user enter call some functions or not
