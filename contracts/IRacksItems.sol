@@ -17,6 +17,7 @@ interface IRacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 {
 
   /// @notice Events
   event RacksTrackMinted(uint baseItemId, uint rackstrackItemId);
+  event CaseOpened(address user, uint256 casePrice, uint256 item);
   
   // FUNCTIONS RELATED WITH THE CASE
 
