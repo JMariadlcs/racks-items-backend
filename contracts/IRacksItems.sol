@@ -177,4 +177,25 @@ interface IRacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 {
   *  - uri: uri wanted to be set
   */
   function setTokenUri(uint256 tokenId, string memory _uri) public;
+
+  // FUNCTIONS RELATED TO FUNDS
+  
+  /**
+  * @notice Used to withdraw specific amount of funds
+  * @dev 
+  * - Only owner is able to call this function
+  * - Should check that there are avaliable funds to withdraw
+  * - Should specify the wallet address you want to transfer the funds to
+  * - Should specify the amount of funds you want to transfer
+  */
+  function withdrawFunds(address wallet, uint256 amount) public;
+
+  /**
+  * @notice Used to withdraw ALL funds
+  * @dev 
+  * - Only owner is able to call this function
+  * - Should check that there are avaliable funds to withdraw
+  * - Should specify the wallet address you want to transfer the funds to
+  */
+  function withdrawAllFunds(address wallet) public;
 }

@@ -8,8 +8,9 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol"; // to work with COORDINATOR and VRF
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol"; // to use functionalities for Chainlink VRF
 import "./IRacksItems.sol"; // RacksItems interface
+import "./RacksToken.sol"; // RacksToken
 
-contract RacksItems is IRacksItems, ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2SubscriptionManager
+contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2SubscriptionManager
    
   /**
   * @notice Enum for Contract state -> to let user enter call some functions or not
@@ -22,6 +23,7 @@ contract RacksItems is IRacksItems, ERC1155, AccessControl, VRFConsumerBaseV2 { 
   /// @notice tokens
   IERC721 MR_CRYPTO;
   address public constant i_MrCryptoAddress = 0x43B31fA35672c844f5dAB60f2fB72474955292CD;
+  RacksToken public racksToken;
   
   /// @notice Standard variables
   bytes32 public constant ADMIN_ROLE = 0x00;
@@ -48,6 +50,7 @@ contract RacksItems is IRacksItems, ERC1155, AccessControl, VRFConsumerBaseV2 { 
 
   /// @notice Events
   event RacksTrackMinted(uint baseItemId, uint rackstrackItemId);
+  event CaseOpened(address user, uint256 casePrice, uint256 item);
   
   /// @notice Modifiers
   /// @notice Check that person calling a function is the owner of the Contract
@@ -73,7 +76,7 @@ contract RacksItems is IRacksItems, ERC1155, AccessControl, VRFConsumerBaseV2 { 
     _;
   }
 
-  constructor(address vrfCoordinatorV2, bytes32 gasLane, uint64 subscriptionId, uint32 callbackGasLimit) 
+  constructor(address vrfCoordinatorV2, bytes32 gasLane, uint64 subscriptionId, uint32 callbackGasLimit, RacksToken _racksToken) 
   VRFConsumerBaseV2(vrfCoordinatorV2)
   ERC1155(""){
     /**
@@ -88,6 +91,7 @@ contract RacksItems is IRacksItems, ERC1155, AccessControl, VRFConsumerBaseV2 { 
     * Initialization of RacksItem contract variables
     */
     MR_CRYPTO = IERC721(i_MrCryptoAddress);
+    racksToken = _racksToken;
     _owner = msg.sender;
     s_tokenCount = 0;
     s_contractState = ContractState.Active;
@@ -142,16 +146,20 @@ contract RacksItems is IRacksItems, ERC1155, AccessControl, VRFConsumerBaseV2 { 
    /**
   * @notice Function used to 'open a case' and get an item
   * @dev 
+  * - Should check that msg.value is bigger than casePrice
+  * - Should transfer msg.value to the contract
   * - Internally calls randomNumber() 
+  * - Apply modular function for the randomNumber to be between 0 and totalSupply of items
   * - Should choose an item
   * - Should check if the item is RacksTrack (special NFT)
   *   - If it is a RacksTrack -> mint ERC721 to users wallet
   */
   function openCase() public contractIsActive onlyVIP payable returns(uint256) { 
     require(msg.value == casePrice, "User did not pay enough money to open the case");
-    uint256 randomNumber = _randomNumber() / 20000; // Get Random Number between 0 and totalSupply
+    racksToken.transferFrom(msg.sender, address(this), msg.value);
+    uint256 randomNumber = _randomNumber() % s_maxTotalSupply; // Get Random Number between 0 and totalSupply
     uint256 totalCount = 0;
-    uint256 gotToken;
+    uint256 item;
 
     for(uint256 i = 0 ; i < s_tokenCount; i++) {
       uint256 _newTotalCount = totalCount + s_maxSupply[i] ;
@@ -163,15 +171,16 @@ contract RacksItems is IRacksItems, ERC1155, AccessControl, VRFConsumerBaseV2 { 
           s_maxSupply[i]-=1;
           _mintSupply(msg.sender,1);
           emit RacksTrackMinted(i-1,s_tokenCount-1);
-          gotToken=s_tokenCount -1;
+            item =s_tokenCount -1;
           }else { 
             _safeTransferFrom(address(this), msg.sender, i-1 , 1,"");
-            gotToken = i;
+            item = i;
           }
         break;
       }
     }
-    return gotToken;
+    emit CaseOpened(msg.sender, msg.value, item);
+    return item;
   }
 
 
@@ -359,5 +368,33 @@ contract RacksItems is IRacksItems, ERC1155, AccessControl, VRFConsumerBaseV2 { 
   function setTokenUri(uint256 tokenId, string memory _uri) public onlyOwnerOrAdmin {
         require(bytes(s_uris[tokenId]).length == 0, "Can not set uri twice"); 
         s_uris[tokenId] = _uri; 
-    }
+  }
+
+  
+  // FUNCTIONS RELATED TO FUNDS
+  
+  /**
+  * @notice Used to withdraw specific amount of funds
+  * @dev 
+  * - Only owner is able to call this function
+  * - Should check that there are avaliable funds to withdraw
+  * - Should specify the wallet address you want to transfer the funds to
+  * - Should specify the amount of funds you want to transfer
+  */
+  function withdrawFunds(address wallet, uint256 amount) public onlyOwner {
+    require(address(this).balance > 0, "No funds to withdraw");
+    racksToken.transfer(wallet, amount);
+  }
+
+  /**
+  * @notice Used to withdraw ALL funds
+  * @dev 
+  * - Only owner is able to call this function
+  * - Should check that there are avaliable funds to withdraw
+  * - Should specify the wallet address you want to transfer the funds to
+  */
+  function withdrawAllFunds(address wallet) public onlyOwner {
+    require(address(this).balance > 0, "No funds to withdraw");
+    racksToken.transfer(wallet, address(this).balance);
+  }
 }
