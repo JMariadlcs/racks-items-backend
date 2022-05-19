@@ -29,6 +29,8 @@ yarn add --dev @nomiclabs/hardhat-ethers@npm:hardhat-deploy-ethers ethers @nomic
 ```
 
 ## Compile and Deploy Smart Contracts
+We are compiling the Smart Contracts and then deploying them to Polygong Testnet Mumbai
+
 - Compile:
 ```bash
 npx hardhat compile
