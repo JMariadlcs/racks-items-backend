@@ -29,7 +29,11 @@ yarn add --dev @nomiclabs/hardhat-ethers@npm:hardhat-deploy-ethers ethers @nomic
 ```
 
 ## Compile and Deploy Smart Contracts
-We are compiling the Smart Contracts and then deploying them to Polygong Testnet Mumbai
+We are compiling the Smart Contracts and then deploying them to Polygong Testnet Mumbai.
+
+In order to do so you will first need to create a `.env` file that should contain provider RPC (`STAGING_ALCHEMY_KEY`) and the private key of the wallet you are using to deploy the contracts (`PRIVATE_KEY`).
+
+**NOTICE:** do NOT upload your `.env` file to GitHub or any other sites.
 
 - Compile:
 ```bash
