@@ -27,3 +27,22 @@ Notice: you can include more ignore cases in your `.gitignore` by copying the co
 ```bash
 yarn add --dev @nomiclabs/hardhat-ethers@npm:hardhat-deploy-ethers ethers @nomiclabs/hardhat-etherscan @nomiclabs/hardhat-waffle chai ethereum-waffle hardhat hardhat-contract-sizer hardhat-deploy hardhat-gas-reporter prettier prettier-plugin-solidity solhint solidity-coverage dotenv @chainlink/contracts base64-sol
 ```
+
+## Compile and Deploy Smart Contracts
+- Compile:
+```bash
+npx hardhat compile
+```
+or
+```bash
+yarn hardhat compile
+```
+
+- Deploy to Mumbai Testnet: 
+```bash
+npx hardhat deploy --network mumbai
+```
+or
+```bash
+yarn hardhat deploy --network mumbai
+```
