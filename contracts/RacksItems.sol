@@ -16,8 +16,18 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   * @notice Enum for Contract state -> to let user enter call some functions or not
   */
   enum ContractState {   
-      Active,
-      Inactive
+    Active,
+    Inactive
+  }
+
+  /**
+  * @notice Struct for Items on the Marketplace
+  */
+  struct itemOnSale{
+        uint tokenId;
+        uint price;
+        address payable seller;
+        bool sold;
   }
 
   /// @notice tokens
@@ -33,6 +43,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   uint256 public casePrice= 20 ether; // Change to RacksToken
   bool public contractActive = true;
   ContractState public s_contractState;
+  itemOnSale[] _marketItems;
 
   /// @notice VRF Variables
   VRFCoordinatorV2Interface public immutable i_vrfCoordinator; 
@@ -49,8 +60,10 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   mapping (uint256 => string) private s_uris; 
 
   /// @notice Events
-  event RacksTrackMinted(uint baseItemId, uint rackstrackItemId);
   event CaseOpened(address user, uint256 casePrice, uint256 item);
+  event itemExchanged(address user, uint256 tokenId);
+  event sellingItem(address user, uint256 tokenId, uint256 price);
+  event itemBought(address buyer, address seller, uint256 marketItemId, uint256 price);
   
   /// @notice Modifiers
   /// @notice Check that person calling a function is the owner of the Contract
@@ -166,20 +179,18 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
       if(randomNumber > totalCount) {
         totalCount = _newTotalCount;
       }else {
-        if (randomNumber == totalCount - (s_maxSupply[i-1]/2)) { // Probability of getting a RacksTrack
-          _burn(address(this), i-1, 1);
-          s_maxSupply[i]-=1;
-          _mintSupply(msg.sender,1);
-          emit RacksTrackMinted(i-1,s_tokenCount-1);
-            item =s_tokenCount -1;
-          }else { 
-            _safeTransferFrom(address(this), msg.sender, i-1 , 1,"");
-            item = i;
+        if(balanceOf(address(this),i)>0){
+          for(uint256 j = i-1; j >= 0; j--){
+            if (balanceOf(address(this),j)>0){
+              item = j;
+              _safeTransferFrom(address(this), msg.sender, j , 1,"");
+              break;
+            }
           }
-        break;
+        }
       }
     }
-    emit CaseOpened(msg.sender, msg.value, item);
+    emit CaseOpened(msg.sender, casePrice, item);
     return item;
   }
 
@@ -258,6 +269,68 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
       s_maxSupply[tokenId] = amount;
   }
 
+
+  // FUNCTIONS RELATED TO THE "MARKETPLACE"
+
+  /**
+  * @notice Function used to sell an item on the marketplace
+  * @dev
+  * - Needs to check balanceOf item trying to be sold
+  * - Needs to transfer item 
+  * - Update marketItems array
+  * - Emit event 
+  */
+  function sellItem(uint256 tokenId, uint256 price) public {
+    require(balanceOf(msg.sender, tokenId) > 0, "Item not found.");
+    _safeTransferFrom(msg.sender, address(this), tokenId, 1 ,"");
+    _marketItems.push(
+      itemOnSale(
+        tokenId,
+        price,
+        payable(msg.sender),
+        false
+      )
+    );
+    emit sellingItem(msg.sender, tokenId, price);
+  }
+
+  /**
+  * @notice Function used to exchange a token item for a real physical clothe.
+  */
+  function exchangeItem(uint256 tokenId) public {
+    require(balanceOf(msg.sender, tokenId) > 0);
+     _burn(msg.sender, tokenId, 1);
+     s_maxSupply[tokenId] -= 1;
+     emit itemExchanged(msg.sender, tokenId);
+  }
+
+  /**
+  * @notice Function used to buy an item on the marketplace
+  * @dev
+  * - Needs to transfer tokens from buyer to seller
+  * - Needs to transfer item from seller to buyer
+  * - Update sold attribute from array
+  * - Emit event 
+  */
+  function buyItem(uint256 marketItemId) public payable {
+    itemOnSale memory item = _marketItems[marketItemId];
+    racksToken.transferFrom(msg.sender, payable(item.seller), item.price);
+    _safeTransferFrom(address(this), msg.sender, item.tokenId, 1 ,"");
+    item.sold = true;
+    emit itemBought(msg.sender, item.seller, marketItemId, item.price);
+  }
+
+  /**
+  * @notice Function used to return items that are currently on sale
+  */
+  function getItemsOnSale() public view returns(itemOnSale[] memory) {
+    uint256 arrayLength = _marketItems.length;
+    itemOnSale[] memory items = new itemOnSale[](arrayLength);
+    for(uint256 i = 0; i < arrayLength; i++){
+      items[i] = _marketItems[i];
+    }
+    return items;
+  }
 
   // FUNCTIONS RELATED TO "USERS"
 
