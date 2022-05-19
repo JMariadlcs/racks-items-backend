@@ -22,7 +22,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
 
   /// @notice tokens
   IERC721 MR_CRYPTO;
-  address public constant i_MrCryptoAddress = 0x43B31fA35672c844f5dAB60f2fB72474955292CD;
+  address public constant i_MrCryptoAddress = 0xeF453154766505FEB9dBF0a58E6990fd6eB66969;
   RacksToken public racksToken;
   
   /// @notice Standard variables
