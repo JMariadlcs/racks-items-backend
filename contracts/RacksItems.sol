@@ -61,6 +61,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
 
   /// @notice Events
   event CaseOpened(address user, uint256 casePrice, uint256 item);
+  event casePriceChanged(uint256 newPrice);
   event itemExchanged(address user, uint256 tokenId);
   event sellingItem(address user, uint256 tokenId, uint256 price);
   event itemBought(address buyer, address seller, uint256 marketItemId, uint256 price);
@@ -136,6 +137,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   */
   function setCasePrice(uint256 price) public onlyOwnerOrAdmin {
     casePrice = price;
+    emit casePriceChanged(price);
   }
 
   /**
