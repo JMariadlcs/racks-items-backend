@@ -40,7 +40,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   address private _owner;
   uint256 private s_maxTotalSupply;
   uint256 private s_tokenCount;
-  uint256 public casePrice= 20 ether; // Change to RacksToken
+  uint256 public casePrice; // Change to RacksToken
   bool public contractActive = true;
   ContractState public s_contractState;
   itemOnSale[] _marketItems;
@@ -107,6 +107,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
     racksToken = _racksToken;
     _owner = msg.sender;
     s_tokenCount = 0;
+    casePrice = 1;
     s_contractState = ContractState.Active;
 
     /**
@@ -167,7 +168,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   * - Should check if the item is RacksTrack (special NFT)
   *   - If it is a RacksTrack -> mint ERC721 to users wallet
   */
-  function openCase() public contractIsActive onlyVIP { 
+  function openCase() public contractIsActive /*onlyVIP*/ { 
     require(racksToken.allowance(msg.sender, address(this))>=casePrice,"Approve first");
     racksToken.transferFrom(msg.sender, address(this), casePrice);
     uint256 randomNumber = _randomNumber() % s_maxTotalSupply; // Get Random Number between 0 and totalSupply
