@@ -139,6 +139,13 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   }
 
   /**
+  * @notice View case price
+  */
+  function getCasePrice() public view returns(uint256) {
+    return casePrice;
+  }
+
+  /**
   * @notice Used to get an actually Random Number -> to pick an item when openning a case
   * @dev Uses Chainlink VRF -> call requestRandomWords method by using o_vrfCoordinator object
   * set as internal because is going to be called only when a case is opened
