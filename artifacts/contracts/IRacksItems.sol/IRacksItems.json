@@ -33,18 +33,49 @@
       "inputs": [
         {
           "indexed": false,
+          "internalType": "address",
+          "name": "buyer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "seller",
+          "type": "address"
+        },
+        {
+          "indexed": false,
           "internalType": "uint256",
-          "name": "baseItemId",
+          "name": "marketItemId",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "rackstrackItemId",
+          "name": "price",
           "type": "uint256"
         }
       ],
-      "name": "RacksTrackMinted",
+      "name": "itemBought",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "itemExchanged",
       "type": "event"
     },
     {
@@ -64,12 +95,12 @@
         },
         {
           "indexed": false,
-          "internalType": "bool",
-          "name": "isRacksTrack",
-          "type": "bool"
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
         }
       ],
-      "name": "itemExchanged",
+      "name": "sellingItem",
       "type": "event"
     },
     {

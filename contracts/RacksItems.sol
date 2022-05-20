@@ -167,9 +167,9 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   * - Should check if the item is RacksTrack (special NFT)
   *   - If it is a RacksTrack -> mint ERC721 to users wallet
   */
-  function openCase() public contractIsActive onlyVIP payable returns(uint256) { 
-    require(msg.value == casePrice, "User did not pay enough money to open the case");
-    racksToken.transferFrom(msg.sender, address(this), msg.value);
+  function openCase() public contractIsActive onlyVIP { 
+    require(racksToken.allowance(msg.sender, address(this))>=casePrice,"Approve first");
+    racksToken.transferFrom(msg.sender, address(this), casePrice);
     uint256 randomNumber = _randomNumber() % s_maxTotalSupply; // Get Random Number between 0 and totalSupply
     uint256 totalCount = 0;
     uint256 item;
@@ -179,19 +179,20 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
       if(randomNumber > totalCount) {
         totalCount = _newTotalCount;
       }else {
+        item = i;
         if(balanceOf(address(this),i)>0){
           for(uint256 j = i-1; j >= 0; j--){
             if (balanceOf(address(this),j)>0){
               item = j;
-              _safeTransferFrom(address(this), msg.sender, j , 1,"");
               break;
             }
           }
         }
+        _safeTransferFrom(address(this), msg.sender, item , 1,"");
+        break;
       }
     }
     emit CaseOpened(msg.sender, casePrice, item);
-    return item;
   }
 
 

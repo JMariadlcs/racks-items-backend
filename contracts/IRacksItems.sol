@@ -19,9 +19,10 @@ interface IRacksItems{
   */
   
   /// @notice Events
-  event RacksTrackMinted(uint baseItemId, uint rackstrackItemId);
   event CaseOpened(address user, uint256 casePrice, uint256 item);
-  event itemExchanged(address user , uint tokenId, bool isRacksTrack );
+  event itemExchanged(address user, uint256 tokenId);
+  event sellingItem(address user, uint256 tokenId, uint256 price);
+  event itemBought(address buyer, address seller, uint256 marketItemId, uint256 price);
   
   /// @notice Modifiers
   /// @notice Check that person calling a function is the owner of the Contract
@@ -74,8 +75,6 @@ interface IRacksItems{
 
 
   
-
-
   // FUNCTIONS RELATED TO "USERS"
 
   /**
