@@ -181,7 +181,8 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   function openCase() public contractIsActive /*onlyVIP*/ { 
     require(racksToken.allowance(msg.sender, address(this))>=casePrice,"Approve first");
     racksToken.transferFrom(msg.sender, address(this), casePrice);
-    uint256 randomNumber = _randomNumber() % s_maxTotalSupply; // Get Random Number between 0 and totalSupply
+    _randomNumber();
+    uint256 randomNumber = s_randomWord % s_maxTotalSupply; // Get Random Number between 0 and totalSupply
     uint256 totalCount = 0;
     uint256 item;
 
