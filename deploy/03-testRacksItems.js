@@ -15,7 +15,7 @@
         console.log("CHANGE CASE PRICE TEST")
         const decimals = 1000000000000000000n; // 10e18 
         const newCasePrice = 20; // 20 RacksTokens
-       /*
+       
         const setCasePricetTx = await racksItems.setCasePrice(BigInt(20) * decimals, {gasLimit: 9999999})
         console.log("Changing case price to " + setCasePricetTx.toString() + "...")
         const racksTokenMintTxReceipt = await setCasePricetTx.wait(1)
@@ -38,7 +38,7 @@
         console.log("Uri set!")
         const getUriTx = await racksItems.uri(0);
         console.log("Uri set to: " + getUriTx);
-        */
+        
         //4th -> opencase
         console.log("OPEN CASE TEST")
         console.log("Approving RacksToken...")
