@@ -336,10 +336,22 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   * @notice Function used to return items that are currently on sale
   */
   function getItemsOnSale() public view returns(itemOnSale[] memory) {
-    uint256 arrayLength = _marketItems.length;
+    uint arrayLength;
+    for(uint i=0; i<_marketItems.length;i++){
+      itemOnSale memory item = _marketItems[i];
+      if(item.sold==false){
+        arrayLength+=1;
+      }
+    }
     itemOnSale[] memory items = new itemOnSale[](arrayLength);
-    for(uint256 i = 0; i < arrayLength; i++){
-      items[i] = _marketItems[i];
+    uint indexCount;
+    for(uint256 i = 0; i < _marketItems.length; i++){
+      itemOnSale memory item = _marketItems[i];
+      if(item.sold==false){
+        items[indexCount]=item;
+        indexCount++;
+
+      }
     }
     return items;
   }
