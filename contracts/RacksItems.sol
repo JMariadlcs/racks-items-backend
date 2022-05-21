@@ -2,15 +2,16 @@
 
 pragma solidity ^0.8.7;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol"; // define roles
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; // erc1155 tokens
+import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol"; // contract should be ERC1155 holder to receive ERC1155 tokens
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol"; // to instanciate MrCrypto object
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol"; // to work with COORDINATOR and VRF
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol"; // to use functionalities for Chainlink VRF
 import "./IRacksItems.sol"; // RacksItems interface
 import "./RacksToken.sol"; // RacksToken
 
-contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2SubscriptionManager
+contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 { // VRFv2SubscriptionManager
    
   /**
   * @notice Enum for Contract state -> to let user enter call some functions or not
@@ -124,7 +125,7 @@ contract RacksItems is ERC1155, AccessControl, VRFConsumerBaseV2 { // VRFv2Subsc
   /** 
   * @notice Need to override supportsInterface function because Contract is ERC1155 and AccessControl
   */
-  function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, AccessControl) returns (bool) {
+  function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, ERC1155Receiver, AccessControl) returns (bool) {
     return super.supportsInterface(interfaceId);
   }
 
