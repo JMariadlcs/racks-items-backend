@@ -9,7 +9,7 @@
         const racksItems = await ethers.getContract("RacksItems", deployer)
 
         // FUNCTION TESTING
-        /*
+      
         //1st -> Change casePrice
         console.log("CHANGE CASE PRICE TEST")
         const decimals = 1000000000000000000n; // 10e18 
@@ -18,7 +18,7 @@
         console.log("Changing case price to " + setCasePricetTx + "...")
         const racksTokenMintTxReceipt = await setCasePricetTx.wait(1)
         console.log("Case price changed to " + newCasePrice)
-        */
+        
 
         //2st -> mint item
         console.log("MINT ITEM TEST")
@@ -29,11 +29,14 @@
 
         //3st -> set itemUri
         console.log("SET ITEM URI TEST")
-        var testTokenUri = '{"id": 0, "name": "item1" , "image": "ipfs://QmNbphcmAiS2ursxN8upQPzvf52vvpDbAQQb2Ug5ko1pgE"}'
-        const setUriTx = await racksItems.setTokenUri(1, testTokenUri,{gasLimit: 9999999})
+        var testTokenUri = '{"id": 0, "name": "item1" , "image": "https://ipfs.io/ipfs/QmNbphcmAiS2ursxN8upQPzvf52vvpDbAQQb2Ug5ko1pgE?filename=hoodie.webp"}'
+        const setUriTx = await racksItems.setTokenUri(0, testTokenUri,{gasLimit: 9999999})
         console.log("Setting tokenUri...");
         const setUriTxReceipt = await setUriTx.wait(1);
         console.log("Uri set!")
+        const getUriTx = await racksItems.uri(0);
+        console.log("Uri set to: " + getUriTx);
+
     }
     
     module.exports.tags = ["all", "testRacksItems"]
