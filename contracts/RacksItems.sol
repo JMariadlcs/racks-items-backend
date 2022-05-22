@@ -330,12 +330,12 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   * - Emit event 
   */
   function buyItem(uint256 marketItemId) public {
+    itemOnSale memory item = _marketItems[marketItemId];
     require(msg.sender!=item.seller);
     require(item.sold==false);
-    itemOnSale memory item = _marketItems[marketItemId];
     racksToken.transferFrom(msg.sender, item.seller, item.price);
     _safeTransferFrom(address(this), msg.sender, item.tokenId, 1 ,"");
-    item.sold = true;
+    _marketItems[marketItemId].sold = true;
     emit itemBought(msg.sender, item.seller, marketItemId, item.price);
   }
 
