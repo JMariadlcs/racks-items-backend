@@ -28,7 +28,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
         uint tokenId;
         uint marketItemId;
         uint price;
-        address payable seller;
+        address seller;
         bool sold;
   }
 
@@ -300,7 +300,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
         tokenId,
         _marketCount,
         price,
-        payable(msg.sender),
+        msg.sender,
         false
       )
     );
@@ -322,16 +322,18 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   /**
   * @notice Function used to buy an item on the marketplace
   * @dev
+  * - Needs to check that user is not trying to buy its own item
+  * - Needs to check that item was not sold before
   * - Needs to transfer tokens from buyer to seller
   * - Needs to transfer item from seller to buyer
   * - Update sold attribute from array
   * - Emit event 
   */
-  function buyItem(uint256 marketItemId) public payable {
-     itemOnSale memory item = _marketItems[marketItemId];
-    racksToken.transferFrom(msg.sender, item.seller, item.price);
+  function buyItem(uint256 marketItemId) public {
     require(msg.sender!=item.seller);
     require(item.sold==false);
+    itemOnSale memory item = _marketItems[marketItemId];
+    racksToken.transferFrom(msg.sender, item.seller, item.price);
     _safeTransferFrom(address(this), msg.sender, item.tokenId, 1 ,"");
     item.sold = true;
     emit itemBought(msg.sender, item.seller, marketItemId, item.price);
