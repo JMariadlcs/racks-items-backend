@@ -328,7 +328,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
     itemOnSale memory item = _marketItems[marketItemId];
     racksToken.transferFrom(msg.sender, payable(item.seller), item.price);
     _safeTransferFrom(address(this), msg.sender, item.tokenId, 1 ,"");
-    item.sold = true;
+    _marketItems[marketItemId].sold = true;
     emit itemBought(msg.sender, item.seller, marketItemId, item.price);
   }
 
@@ -339,7 +339,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
     uint arrayLength;
     for(uint i=0; i<_marketItems.length;i++){
       itemOnSale memory item = _marketItems[i];
-      if(item.sold==false){
+      if(_marketItems[i].sold==false){
         arrayLength+=1;
       }
     }
@@ -347,7 +347,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
     uint indexCount;
     for(uint256 i = 0; i < _marketItems.length; i++){
       itemOnSale memory item = _marketItems[i];
-      if(item.sold==false){
+      if(_marketItems[i].sold==false){
         items[indexCount]=item;
         indexCount++;
 
