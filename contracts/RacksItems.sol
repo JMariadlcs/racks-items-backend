@@ -292,12 +292,12 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   * - Update marketItems array
   * - Emit event 
   */
-  function sellItem(uint256 tokenId, uint256 price) public {
-    require(balanceOf(msg.sender, tokenId) > 0, "Item not found.");
-    _safeTransferFrom(msg.sender, address(this), tokenId, 1 ,"");
+  function sellItem(uint256 marketItemId, uint256 price) public {
+    require(balanceOf(msg.sender, marketItemId) > 0, "Item not found.");
+    _safeTransferFrom(msg.sender, address(this), marketItemId, 1 ,"");
     _marketItems.push(
       itemOnSale(
-        tokenId,
+        marketItemId,
         _marketCount,
         price,
         msg.sender,
@@ -305,18 +305,31 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
       )
     );
     _marketCount++;
-    emit sellingItem(msg.sender, tokenId, price);
+    emit sellingItem(msg.sender, marketItemId, price);
+  }
+
+  /**
+  * @notice Function used to unlist an item from marketplace
+  * @dev
+  * - Needs to check that user is trying to unlist an item he owns
+  * - Needs to transfer item from contract to user address
+  * - Update item's sold variable
+  */
+  function unListItem(uint256 marketItemId) public {
+    require(_marketItems[marketItemId].seller == msg.sender, "You are not the owner of this item.");
+    _safeTransferFrom(address(this), msg.sender, marketItemId, 1, "");
+    _marketItems[marketItemId].sold = true;
   }
 
   /**
   * @notice Function used to exchange a token item for a real physical clothe.
   */
-  function exchangeItem(uint256 tokenId) public {
-    require(balanceOf(msg.sender, tokenId) > 0);
-     _burn(msg.sender, tokenId, 1);
-     s_maxSupply[tokenId] -= 1;
+  function exchangeItem(uint256 marketItemId) public {
+    require(balanceOf(msg.sender, marketItemId) > 0);
+     _burn(msg.sender, marketItemId, 1);
+     s_maxSupply[marketItemId] -= 1;
      s_maxTotalSupply -=1;
-     emit itemExchanged(msg.sender, tokenId);
+     emit itemExchanged(msg.sender, marketItemId);
   }
 
   /**
@@ -350,7 +363,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
     uint arrayLength;
     
     for(uint i=0; i<_marketItems.length;i++){
-      itemOnSale memory  item = _marketItems[i];
+      itemOnSale memory item = _marketItems[i];
       if(item.sold==false){
         arrayLength+=1;
       }
@@ -362,7 +375,6 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
       if(item.sold==false){
         items[indexCount]=item;
         indexCount++;
-
       }
     }
     return items;
