@@ -6,10 +6,9 @@ import "@openzeppelin/contracts/access/AccessControl.sol"; // define roles
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; // erc1155 tokens
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol"; // contract should be ERC1155 holder to receive ERC1155 tokens
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol"; // to instanciate MrCrypto object
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol"; // to work with RacksToken
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol"; // to work with COORDINATOR and VRF
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol"; // to use functionalities for Chainlink VRF
-import "./IRacksItems.sol"; // RacksItems interface
-import "./RacksToken.sol"; // RacksToken
 
 contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 { // VRFv2SubscriptionManager
    
@@ -503,7 +502,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   * - Should specify the amount of funds you want to transfer
   */
   function withdrawFunds(address wallet, uint256 amount) public onlyOwner {
-    require(address(this).balance > 0, "No funds to withdraw");
+    require(racksToken.balanceOf(address(this)) > 0, "No funds to withdraw");
     racksToken.transfer(wallet, amount);
   }
 
@@ -515,7 +514,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   * - Should specify the wallet address you want to transfer the funds to
   */
   function withdrawAllFunds(address wallet) public onlyOwner {
-    require(address(this).balance > 0, "No funds to withdraw");
+    require(racksToken.balanceOf(address(this)) > 0, "No funds to withdraw");
     racksToken.transfer(wallet, address(this).balance);
   }
 

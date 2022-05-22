@@ -45,12 +45,19 @@
         const approveRacksTokenTx = await racksToken.approve(racksItems.address, '100000000000000000000')
         const approveRacksTokenTxReceipt = await approveRacksTokenTx.wait(1);
         console.log("RacksToken approved!")
-   */
+  
         console.log("Opening case...") 
-      
         const openCaseTx = await racksItems.openCase()
-        const openCaseTxReceipt = await openCaseTx.wait(1);
-        console.log("Case opened! you got item " + openCaseTx.toString());
+        const openCaseTxReceipt = await openCaseTx.wait(1)
+        console.log("Case opened! you got item " + openCaseTx.toString())
+ */
+        //5th -> withdraw all funds
+        console.log("WITHDRAW ALL FUNDS TEST")
+        console.log("Withdrawing all funds to address: " + deployer.toString() + "...")
+        const withdrawAllFundsTx = await racksItems.withdrawAllFunds(deployer, {gasLimit: 9999999})
+        const withdrawAllFundsTxReceipt = await withdrawAllFundsTx.wait(1)
+        console.log("Funds succesfully withdrawed!")
+
   
 
     }
