@@ -51,7 +51,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   bytes32 public immutable i_gasLane;
   uint64 public immutable i_subscriptionId;
   uint32 public immutable i_callbackGasLimit;
-  uint16 public constant REQUEST_CONFIRMATIONS = 1; 
+  uint16 public constant REQUEST_CONFIRMATIONS = 3; 
   uint32 public constant NUM_WORDS = 1; 
   uint256 public s_randomWord; // random Number we get from Chainlink VRF
   
@@ -228,12 +228,13 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
 
   /**
   * @notice Calculate chance of receiving an specific item
+  * - As higher is result higher is the rarity of the item
   * @dev - Requires that tokenId exists (item is listed)
   * - chance is calculated as item supply divided by total items supply
   */
-  function _chanceOfItem(uint256 tokenId) public virtual view returns(uint256) {
+  function _rarityOfItem(uint256 tokenId) public virtual view returns(uint256) {
     require(_itemExists(tokenId));
-    uint256 result = s_maxSupply[tokenId] / s_maxTotalSupply;
+    uint256 result = s_maxTotalSupply / s_maxSupply[tokenId];
     return result;
   }
 
@@ -243,7 +244,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   * @dev Copy users inventory in an empty array and returns it
   */
   function viewItems(address owner) public view returns(uint256[] memory) { 
-    uint256[] memory inventory = new uint [](s_tokenCount + 1);
+    uint256[] memory inventory = new uint [](s_tokenCount);
     for(uint256 i=0 ; i<inventory.length; i++) {
       inventory[i]=balanceOf(owner,i);
     }
