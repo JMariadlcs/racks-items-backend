@@ -67,6 +67,8 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   event itemExchanged(address user, uint256 tokenId);
   event sellingItem(address user, uint256 tokenId, uint256 price);
   event itemBought(address buyer, address seller, uint256 marketItemId, uint256 price);
+  event unListedItem(address owner, uint256 marketItemId);
+  event itemPriceChanged(address owner, uint256 marketItemId, uint256 oldPrice, uint256 newPrice);
   
   /// @notice Modifiers
   /// @notice Check that person calling a function is the owner of the Contract
@@ -313,11 +315,27 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   * - Needs to check that user is trying to unlist an item he owns
   * - Needs to transfer item from contract to user address
   * - Update item's sold variable
+  * - Emit event
   */
   function unListItem(uint256 marketItemId) public {
     require(_marketItems[marketItemId].seller == msg.sender, "You are not the owner of this item.");
     _safeTransferFrom(address(this), msg.sender, marketItemId, 1, "");
     _marketItems[marketItemId].sold = true;
+    emit unListedItem(msg.sender, marketItemId);
+  }
+
+  /**
+  * @notice Function used to change price from item listed 
+  * @dev
+  * - Needs to check that user is trying to unlist an item he owns
+  * - Needs to update price status
+  * - Emit event
+  */
+  function changeItemPrice(uint256 marketItemId, uint256 newPrice) public {
+    require(_marketItems[marketItemId].seller == msg.sender, "You are not the owner of this item.");
+    uint256 oldPrice = _marketItems[marketItemId].price;
+    _marketItems[marketItemId].price = newPrice;
+    emit itemPriceChanged(msg.sender, marketItemId, oldPrice, newPrice);
   }
 
   /**
