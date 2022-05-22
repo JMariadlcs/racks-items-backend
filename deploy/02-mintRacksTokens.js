@@ -1,6 +1,6 @@
 /* This Script is used to deploy RacksItems.sol contract into a TESTNET
      Deploy: 'yarn hardhat deploy --network mumbai'
-    or 'npx hardhat deploy --tags mint --network mumbai' */
+    or 'yarn hardhat deploy --tags mint --network mumbai' */
 const { BigNumber } = require("ethers");
 const { ethers } =  require("hardhat");
 

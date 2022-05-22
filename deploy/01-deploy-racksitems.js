@@ -1,6 +1,6 @@
 /* This Script is used to deploy RacksItems.sol contract into a TESTNET
      Deploy: 'yarn hardhat deploy --network mumbai'
-    or 'npx hardhat deploy --tags racksitems --network mumbai' */
+    or 'yarn hardhat deploy --tags racksitems --network mumbai' */
 
 const { ethers } = require("hardhat");
 const { get } = require("http");
@@ -8,7 +8,7 @@ const { get } = require("http");
 // Parameters for VRFCoordinator
 const VRF_CoordinatorAddress = "0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed";
 const gasLane = "0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f";
-const subscriptionId = "323";
+const subscriptionId = "286";
 const callbackGasLimit = "100000";
 
 

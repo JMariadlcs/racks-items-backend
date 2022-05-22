@@ -1,6 +1,6 @@
 /* This Script is used to deploy RacksToken.sol contract into a TESTNET
      Deploy: 'yarn hardhat deploy --network mumbai'
-    or 'npx hardhat deploy --tags racksToken --network mumbai' */
+    or 'yarn hardhat deploy --tags racksToken --network mumbai' */
 
     const { ethers } = require("hardhat")
     

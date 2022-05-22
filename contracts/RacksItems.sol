@@ -26,6 +26,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   */
   struct itemOnSale{
         uint tokenId;
+        uint marketItemId;
         uint price;
         address payable seller;
         bool sold;
@@ -34,13 +35,14 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   /// @notice tokens
   IERC721 MR_CRYPTO;
   address public constant i_MrCryptoAddress = 0xeF453154766505FEB9dBF0a58E6990fd6eB66969;
-  RacksToken public racksToken;
+  IERC20 racksToken;
   
   /// @notice Standard variables
   bytes32 public constant ADMIN_ROLE = 0x00;
   address private _owner;
   uint256 private s_maxTotalSupply;
   uint256 private s_tokenCount;
+  uint private _marketCount;
   uint256 public casePrice; // Change to RacksToken
   bool public contractActive = true;
   ContractState public s_contractState;
@@ -91,7 +93,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
     _;
   }
 
-  constructor(address vrfCoordinatorV2, bytes32 gasLane, uint64 subscriptionId, uint32 callbackGasLimit, RacksToken _racksToken) 
+  constructor(address vrfCoordinatorV2, bytes32 gasLane, uint64 subscriptionId, uint32 callbackGasLimit, address _racksTokenAddress) 
   VRFConsumerBaseV2(vrfCoordinatorV2)
   ERC1155(""){
     /**
@@ -106,7 +108,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
     * Initialization of RacksItem contract variables
     */
     MR_CRYPTO = IERC721(i_MrCryptoAddress);
-    racksToken = _racksToken;
+    racksToken = IERC20(_racksTokenAddress);
     _owner = msg.sender;
     s_tokenCount = 0;
     casePrice = 1;
@@ -175,12 +177,10 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   * - Internally calls randomNumber() 
   * - Apply modular function for the randomNumber to be between 0 and totalSupply of items
   * - Should choose an item
-  * - Should check if the item is RacksTrack (special NFT)
-  *   - If it is a RacksTrack -> mint ERC721 to users wallet
   */
-  function openCase() public contractIsActive /*onlyVIP*/ { 
+  function openCase() public /*onlyVIP contractIsActive*/ {  
     racksToken.transferFrom(msg.sender, address(this), casePrice);
-    uint256 randomNumber = _randomNumber() % s_maxTotalSupply;
+    uint256 randomNumber = _randomNumber()  % s_maxTotalSupply;
     uint256 totalCount = 0;
     uint256 item;
 
@@ -190,8 +190,8 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
         totalCount = _newTotalCount;
       }else {
         item = i-1;
-        if(balanceOf(address(this),i)>0){
-          for(uint256 j = i-1; j >= 0; j--){
+        if(balanceOf(address(this),item)==0){
+          for(uint256 j = item-1; j >= 0; j--){
             if (balanceOf(address(this),j)>0){
               item = j;
               break;
@@ -298,11 +298,13 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
     _marketItems.push(
       itemOnSale(
         tokenId,
+        _marketCount,
         price,
         payable(msg.sender),
         false
       )
     );
+    _marketCount++;
     emit sellingItem(msg.sender, tokenId, price);
   }
 
@@ -313,6 +315,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
     require(balanceOf(msg.sender, tokenId) > 0);
      _burn(msg.sender, tokenId, 1);
      s_maxSupply[tokenId] -= 1;
+     s_maxTotalSupply -=1;
      emit itemExchanged(msg.sender, tokenId);
   }
 
@@ -325,29 +328,36 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   * - Emit event 
   */
   function buyItem(uint256 marketItemId) public payable {
-    itemOnSale memory item = _marketItems[marketItemId];
-    racksToken.transferFrom(msg.sender, payable(item.seller), item.price);
+     itemOnSale memory item = _marketItems[marketItemId];
+    racksToken.transferFrom(msg.sender, item.seller, item.price);
+    require(msg.sender!=item.seller);
+    require(item.sold==false);
     _safeTransferFrom(address(this), msg.sender, item.tokenId, 1 ,"");
-    _marketItems[marketItemId].sold = true;
+    item.sold = true;
     emit itemBought(msg.sender, item.seller, marketItemId, item.price);
   }
 
   /**
   * @notice Function used to return items that are currently on sale
   */
+  function getMarketItem(uint marketItemId) public view returns(itemOnSale memory){
+    return _marketItems[marketItemId];
+  }
+
   function getItemsOnSale() public view returns(itemOnSale[] memory) {
     uint arrayLength;
+    
     for(uint i=0; i<_marketItems.length;i++){
-      itemOnSale memory item = _marketItems[i];
-      if(_marketItems[i].sold==false){
+      itemOnSale memory  item = _marketItems[i];
+      if(item.sold==false){
         arrayLength+=1;
       }
     }
     itemOnSale[] memory items = new itemOnSale[](arrayLength);
     uint indexCount;
     for(uint256 i = 0; i < _marketItems.length; i++){
-      itemOnSale memory item = _marketItems[i];
-      if(_marketItems[i].sold==false){
+      itemOnSale memory  item = _marketItems[i];
+      if(item.sold==false){
         items[indexCount]=item;
         indexCount++;
 
