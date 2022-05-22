@@ -52,7 +52,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   uint64 public immutable i_subscriptionId;
   uint32 public immutable i_callbackGasLimit;
   uint16 public constant REQUEST_CONFIRMATIONS = 3; 
-  uint32 public constant NUM_WORDS = 1; 
+  uint32 public constant NUM_WORDS = 2; 
   uint256 public s_randomWord; // random Number we get from Chainlink VRF
   
   /// @notice Mappings
@@ -179,7 +179,6 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   *   - If it is a RacksTrack -> mint ERC721 to users wallet
   */
   function openCase() public contractIsActive /*onlyVIP*/ { 
-    require(racksToken.allowance(msg.sender, address(this))>=casePrice,"Approve first");
     racksToken.transferFrom(msg.sender, address(this), casePrice);
     _randomNumber();
     uint256 randomNumber = s_randomWord % s_maxTotalSupply; // Get Random Number between 0 and totalSupply
