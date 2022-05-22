@@ -13,8 +13,6 @@
         
         //1st -> Change casePrice
         console.log("CHANGE CASE PRICE TEST")
-    
-  /*
         const setCasePricetTx = await racksItems.setCasePrice('10000000000000000', {gasLimit: 9999999})
         console.log("Changing case price to " + setCasePricetTx.toString() + "...")
         const racksTokenMintTxReceipt = await setCasePricetTx.wait(1)
@@ -38,7 +36,7 @@
         console.log("Uri set!")
         const getUriTx = await racksItems.uri(0);
         console.log("Uri set to: " + getUriTx);
-*//*
+
         //4th -> opencase
         console.log("OPEN CASE TEST")
         console.log("Approving RacksToken...")
@@ -50,16 +48,13 @@
         const openCaseTx = await racksItems.openCase()
         const openCaseTxReceipt = await openCaseTx.wait(1)
         console.log("Case opened! you got item " + openCaseTx.toString())
- */
+
         //5th -> withdraw all funds
         console.log("WITHDRAW ALL FUNDS TEST")
         console.log("Withdrawing all funds to address: " + deployer.toString() + "...")
         const withdrawAllFundsTx = await racksItems.withdrawAllFunds(deployer, {gasLimit: 9999999})
         const withdrawAllFundsTxReceipt = await withdrawAllFundsTx.wait(1)
         console.log("Funds succesfully withdrawed!")
-
-  
-
     }
     
     module.exports.tags = ["all", "testRacksItems"]
