@@ -10,17 +10,17 @@
         const racksToken = await ethers.getContract("RacksToken", deployer)
 
         // FUNCTION TESTING
-  
+        /*
         //1st -> Change casePrice
         console.log("CHANGE CASE PRICE TEST")
      
       
-        const setCasePricetTx = await racksItems.setCasePrice('20000000000000000000', {gasLimit: 9999999})
+        const setCasePricetTx = await racksItems.setCasePrice('10000000000000000', {gasLimit: 9999999})
         console.log("Changing case price to " + setCasePricetTx.toString() + "...")
         const racksTokenMintTxReceipt = await setCasePricetTx.wait(1)
         const getCasePriceTx = await racksItems.getCasePrice()
         console.log("Case price changed to " + getCasePriceTx)
-          /*
+          
 
         //2nd -> mint item
         console.log("MINT ITEM TEST")
@@ -37,15 +37,15 @@
         const setUriTxReceipt = await setUriTx.wait(1);
         console.log("Uri set!")
         const getUriTx = await racksItems.uri(0);
-        console.log("Uri set to: " + getUriTx);*/
+        console.log("Uri set to: " + getUriTx);
         
         //4th -> opencase
         console.log("OPEN CASE TEST")
         console.log("Approving RacksToken...")
-        const approveRacksTokenTx = await racksToken.approve(racksItems.address, '20000000000000000000')
+        const approveRacksTokenTx = await racksToken.approve(racksItems.address, '100000000000000000')
         const approveRacksTokenTxReceipt = await approveRacksTokenTx.wait(1);
         console.log("RacksToken approved!")
-       
+       */
         console.log("Opening case...") 
         const openCaseTx = await racksItems.openCase({gasLimit: 9999999})
         const openCaseTxReceipt = await openCaseTx.wait(1);

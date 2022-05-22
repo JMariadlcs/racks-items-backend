@@ -9,7 +9,7 @@ const { get } = require("http");
 const VRF_CoordinatorAddress = "0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed";
 const gasLane = "0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f";
 const subscriptionId = "323";
-const callbackGasLimit = "150000";
+const callbackGasLimit = "100000";
 
 
 module.exports = async({getNamedAccounts, deployments}) => {

@@ -153,9 +153,9 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   * @dev Uses Chainlink VRF -> call requestRandomWords method by using o_vrfCoordinator object
   * set as internal because is going to be called only when a case is opened
   */
-  function _randomNumber() internal returns(uint256) {
-    uint256 requestId = i_vrfCoordinator.requestRandomWords(i_gasLane, i_subscriptionId, REQUEST_CONFIRMATIONS, i_callbackGasLimit, NUM_WORDS);
-    return requestId;
+  function _randomNumber() public returns(uint256) {
+  uint256 s_requestedNumber = i_vrfCoordinator.requestRandomWords(i_gasLane, i_subscriptionId, REQUEST_CONFIRMATIONS, i_callbackGasLimit, NUM_WORDS);
+  return s_requestedNumber;
   }
 
   /**
@@ -180,8 +180,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   */
   function openCase() public contractIsActive /*onlyVIP*/ { 
     racksToken.transferFrom(msg.sender, address(this), casePrice);
-    _randomNumber();
-    uint256 randomNumber = s_randomWord % s_maxTotalSupply; // Get Random Number between 0 and totalSupply
+    uint256 randomNumber = _randomNumber() % s_maxTotalSupply;
     uint256 totalCount = 0;
     uint256 item;
 
@@ -190,7 +189,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
       if(randomNumber > totalCount) {
         totalCount = _newTotalCount;
       }else {
-        item = i;
+        item = i-1;
         if(balanceOf(address(this),i)>0){
           for(uint256 j = i-1; j >= 0; j--){
             if (balanceOf(address(this),j)>0){
