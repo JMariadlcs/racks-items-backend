@@ -12,7 +12,7 @@
         // FUNCTION TESTING
         
         //1st -> Change casePrice
-        /*
+        
         console.log("CHANGE CASE PRICE TEST")
         const setCasePricetTx = await racksItems.setCasePrice('10000000000000000', {gasLimit: 9999999})
         console.log("Changing case price to " + setCasePricetTx.toString() + "...")
@@ -31,13 +31,13 @@
         //3rd -> set itemUri
         console.log("SET ITEM URI TEST")
         var testTokenUri = '{"name": "item2" , "image": "https://m.media-amazon.com/images/I/41Uvj2-tlSL._AC_UX385_.jpg"}'
-        const setUriTx = await racksItems.setTokenUri(2, testTokenUri,{gasLimit: 9999999})
+        const setUriTx = await racksItems.setTokenUri(0, testTokenUri,{gasLimit: 9999999})
         console.log("Setting tokenUri...");
         const setUriTxReceipt = await setUriTx.wait(2); 
         console.log("Uri set!")
-        const getUriTx = await racksItems.uri(2);
+        const getUriTx = await racksItems.uri(0);
         console.log("Uri set to: " + getUriTx.toString());
-        
+        /*
 
         //4th -> opencase
         console.log("OPEN CASE TEST")
@@ -65,11 +65,11 @@
         const listItemTx = await racksItems.sellItem(1, '50000000000000000000', {gasLimit: 9999999})
         const listItemTxReceipt = await listItemTx.wait(1);
         console.log("Item listed!");
-        */
+       
         console.log("GET ITEMS ON SALE TEST")
         console.log("Getting items on sale...")
         const getItemsOnSaleTx = await racksItems.getItemsOnSale()
-        console.log("List of items on sale: " + getItemsOnSaleTx);
+        console.log("List of items on sale: " + getItemsOnSaleTx); */
     }
     
     module.exports.tags = ["all", "testRacksItemsv2"]
