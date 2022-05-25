@@ -37,8 +37,10 @@ contract RacksItemsTicket is ERC1155, ERC1155Holder, AccessControl, VRFConsumerB
   struct caseTicket {
     uint256 ticketId;
     uint256 numTries;
+    uint256 duration;
     uint256 price;
     address owner;
+    uint256 timeWhenSold;
     bool isAvaliable;
   }
 
@@ -75,6 +77,7 @@ contract RacksItemsTicket is ERC1155, ERC1155Holder, AccessControl, VRFConsumerB
   mapping (uint256 => string) private s_uris; 
   mapping(address => bool) private s_isSellingTicket;
   mapping(address => bool) private s_hasTicket; 
+  mapping(address => bool) private s_ticketIsLended;
 
   /// @notice Events
   event CaseOpened(address user, uint256 casePrice, uint256 item);
@@ -84,7 +87,7 @@ contract RacksItemsTicket is ERC1155, ERC1155Holder, AccessControl, VRFConsumerB
   event itemBought(address buyer, address seller, uint256 marketItemId, uint256 price);
   event unListedItem(address owner, uint256 marketItemId);
   event itemPriceChanged(address owner, uint256 marketItemId, uint256 oldPrice, uint256 newPrice);
-  event newTicketOnSale(address seller, uint256 numTries, uint256 price);
+  event newTicketOnSale(address seller, uint256 numTries, uint256 _hours, uint256 price);
   event unListTicketOnSale(address owner);
   event ticketPriceChanged(address owner, uint256 newTries, uint256 newPrice);
   event ticketBought(uint256 ticketId, address oldOwner, address newOwner, uint256 price);
@@ -443,21 +446,22 @@ contract RacksItemsTicket is ERC1155, ERC1155Holder, AccessControl, VRFConsumerB
   * - Emit event
   *
   */
-  function listTicket(uint256 numTries, uint256 price) public onlyVIP {
+  function listTicket(uint256 numTries, uint256 _hours, uint256 price) public onlyVIP {
     require(!s_isSellingTicket[msg.sender], "User is already currently selling a Ticket");
     require(s_hasTicket[msg.sender], "User has ticket avaliable");
     _tickets.push(
       caseTicket(
       s_ticketCount,
       numTries,
+      _hours,
       price,
       msg.sender,
+      0,
       true
     ));
     s_ticketCount++;
     s_isSellingTicket[msg.sender] = true;
-    s_hasTicket[msg.sender] = false;
-    emit newTicketOnSale(msg.sender, numTries, price);
+    emit newTicketOnSale(msg.sender, numTries, _hours, price);
   }
 
   /**
@@ -502,11 +506,20 @@ contract RacksItemsTicket is ERC1155, ERC1155Holder, AccessControl, VRFConsumerB
     require(_tickets[ticketId].isAvaliable == true, "Ticket is not currently avaliable");
     address oldOwner = _tickets[ticketId].owner;
     racksToken.transferFrom(msg.sender, _tickets[ticketId].owner, _tickets[ticketId].price);
+    _tickets[ticketId].timeWhenSold = block.timestamp;
     s_hasTicket[_tickets[ticketId].owner] = false;
     s_isSellingTicket[_tickets[ticketId].owner] = false;
+    s_ticketIsLended[_tickets[ticketId].owner] = true;
     _tickets[ticketId].owner = msg.sender;
     s_hasTicket[msg.sender] = true;
     emit ticketBought(ticketId, oldOwner, msg.sender, _tickets[ticketId].price);
+  }
+
+  function claimTicketBack(uint256 ticketId) public {
+    require(s_ticketIsLended[msg.sender], "User did not sell any Ticket");
+    require((_tickets[ticketId].timeWhenSold - block.timestamp) > _tickets[ticketId].duration, "Duration of the Ticket is still avaliable");
+    _tickets
+
   }
   
   /** @notice Function used to decrease Ticket tries avaliables
