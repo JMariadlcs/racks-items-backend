@@ -518,13 +518,14 @@ contract RacksItemsTicket is ERC1155, ERC1155Holder, AccessControl, VRFConsumerB
 
   /** @notice Function used to claim Ticket back when duration is over
   * @dev - Check that claimer is lending a Ticket
-  * - Check that duration of the Ticket is over
+  * - Check that duration of the Ticket is over -> block.timestamp is in seconds and duration in hours 
+  * -> transform duration into seconds 
   * - Update mappings
   * - Emit event
   */
   function claimTicketBack(uint256 ticketId) public {
     require(s_ticketIsLended[msg.sender], "User did not sell any Ticket");
-    require((_tickets[ticketId].timeWhenSold - block.timestamp) > _tickets[ticketId].duration, "Duration of the Ticket is still avaliable");
+    require((_tickets[ticketId].timeWhenSold - block.timestamp) > (_tickets[ticketId].duration) / 60, "Duration of the Ticket is still avaliable");
     s_hasTicket[_tickets[ticketId].owner] = false;
     s_hasTicket[msg.sender] = true;
     s_ticketIsLended[msg.sender] = false;
