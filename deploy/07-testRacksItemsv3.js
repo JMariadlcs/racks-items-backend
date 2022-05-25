@@ -58,6 +58,13 @@
         const withdrawAllFundsTx = await racksItems.withdrawAllFunds(deployer, {gasLimit: 9999999})
         const withdrawAllFundsTxReceipt = await withdrawAllFundsTx.wait(1)
         console.log("Funds succesfully withdrawed!")
+        
+        //6th -> withdraw specific funds
+        console.log("WITHDRAW SPECIFIC AMOUNT OF FUNDS TEST")
+        console.log("Withdrawing indicated funds to address: " + deployer.toString() + "...")
+        const withdrawSpFundsTx = await racksItems.withdrawFunds(deployer, '5000000000', {gasLimit: 9999999})
+        const withdrawSpFundsTxReceipt = await withdrawSpFundsTx.wait(1)
+        console.log("Funds succesfully withdrawed!")
 
         //6th -> listItemtoSell
         console.log("LIST ITEM TO SELL TEST")
@@ -103,10 +110,8 @@
         - Buyer needs to approve rackToken to contract address
         - Seller needs to approve RacksItems to contract address
         */
+       /*
         console.log("BUY ITEM TEST")
-        // It is first needed to make an approve
-
-        /*
         console.log("Approving rackstokens...")
         const approveRacksTokenTx2 = await racksToken.approve(racksItems.address, '10000000000000000000000')
         const approveRacksTokenTxReceipt2 = await approveRacksTokenTx2.wait(1);
@@ -117,7 +122,7 @@
         const approveERCTokenTxReceipt = await approveERCTokenTx.wait(1);
         console.log("ERC1155 approved!")
 
-        */
+        
         // -> change account - ITEM IS BOUGHT WITH AN ACCOUNT THAT IS NOT OWNER -> change account
         // notice we are buying item with id:0 but as it was listed again the marketCountId is 1
         console.log("Buying item...")
@@ -127,6 +132,14 @@
         const getItemTx = await racksItems.getMarketItem(0)
         console.log("Item: " + getItemTx)
         
+
+        //9th -> burn item
+        console.log("EXCHANGE ITEM TEST")
+        console.log("Exchanging item...")
+        const exchangeTx = await racksItems.exchangeItem(0, {gasLimit: 9999999})
+        const exchangeTxReceipt = await exchangeTx.wait(1)
+        console.log("Item exchanged!")
+        */
     }
     
     module.exports.tags = ["all", "testRacksItemsv3"]
