@@ -90,7 +90,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   event itemPriceChanged(address owner, uint256 marketItemId, uint256 oldPrice, uint256 newPrice);
   event newTicketOnSale(address seller, uint256 numTries, uint256 _hours, uint256 price);
   event unListTicketOnSale(address owner);
-  event ticketPriceChanged(address owner, uint256 newTries, uint256 newPrice);
+  event ticketConditionsChanged(address owner, uint256 newTries, uint256 newHours, uint256 newPrice);
   event ticketBought(uint256 ticketId, address oldOwner, address newOwner, uint256 price);
   event ticketClaimedBack(address borrower, address realOwner);
   
@@ -492,7 +492,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
     _tickets[ticketId].price = newPrice;
     _tickets[ticketId].duration = newHours;
     _tickets[ticketId].numTries = newTries;
-    emit ticketPriceChanged(msg.sender, newTries, newPrice);
+    emit ticketConditionsChanged(msg.sender, newTries, newHours, newPrice);
   }
 
     /**
