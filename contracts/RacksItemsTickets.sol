@@ -91,6 +91,7 @@ contract RacksItemsTicket is ERC1155, ERC1155Holder, AccessControl, VRFConsumerB
   event unListTicketOnSale(address owner);
   event ticketPriceChanged(address owner, uint256 newTries, uint256 newPrice);
   event ticketBought(uint256 ticketId, address oldOwner, address newOwner, uint256 price);
+  event ticketClaimedBack(address borrower, address realOwner);
   
   /// @notice Modifiers
   /// @notice Check that person calling a function is the owner of the Contract
@@ -515,15 +516,25 @@ contract RacksItemsTicket is ERC1155, ERC1155Holder, AccessControl, VRFConsumerB
     emit ticketBought(ticketId, oldOwner, msg.sender, _tickets[ticketId].price);
   }
 
+  /** @notice Function used to claim Ticket back when duration is over
+  * @dev - Check that claimer is lending a Ticket
+  * - Check that duration of the Ticket is over
+  * - Update mappings
+  * - Emit event
+  */
   function claimTicketBack(uint256 ticketId) public {
     require(s_ticketIsLended[msg.sender], "User did not sell any Ticket");
     require((_tickets[ticketId].timeWhenSold - block.timestamp) > _tickets[ticketId].duration, "Duration of the Ticket is still avaliable");
-    _tickets
-
+    s_hasTicket[_tickets[ticketId].owner] = false;
+    s_hasTicket[msg.sender] = true;
+    s_ticketIsLended[msg.sender] = false;
+    emit ticketClaimedBack(_tickets[ticketId].owner, msg.sender);
   }
   
   /** @notice Function used to decrease Ticket tries avaliables
-  *
+  * @dev - Check if used trie was last one
+  *        - If not: just decrease numTries
+  *        - If so: decrease numTries, update Avaliability and mappings
   */
   function decreaseTicketTries(address user) public {
     for (uint256 i = 0; i < _tickets.length; i++) {
