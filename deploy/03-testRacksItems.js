@@ -54,7 +54,7 @@
         console.log("Withdrawing all funds to address: " + deployer.toString() + "...")
         const withdrawAllFundsTx = await racksItems.withdrawAllFunds(deployer, {gasLimit: 9999999})
         const withdrawAllFundsTxReceipt = await withdrawAllFundsTx.wait(1)
-        console.log("Funds succesfully withdrawed!")*/
+        console.log("Funds succesfully withdrawed!")
     }
     
     module.exports.tags = ["all", "testRacksItems"]
