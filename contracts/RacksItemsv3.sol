@@ -328,7 +328,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * - Update marketItems array
   * - Emit event 
   */
-  function listItem(uint256 marketItemId, uint256 price) public {
+  function listItemOnMarket(uint256 marketItemId, uint256 price) public {
     require(balanceOf(msg.sender, marketItemId) > 0, "Item not found.");
     _marketItems.push(
       itemOnSale(

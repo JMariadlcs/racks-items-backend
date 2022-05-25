@@ -12,7 +12,7 @@
         // FUNCTION TESTING
         
         //1st -> Change casePrice
-        /*
+        
         console.log("CHANGE CASE PRICE TEST")
         const setCasePricetTx = await racksItems.setCasePrice('10000000000000000', {gasLimit: 9999999})
         console.log("Changing case price to " + setCasePricetTx.toString() + "...")
@@ -65,7 +65,7 @@
         const listItemTx = await racksItems.sellItem(1, '50000000000000000000', {gasLimit: 9999999})
         const listItemTxReceipt = await listItemTx.wait(1);
         console.log("Item listed!");
-        */
+        
         console.log("GET ITEMS ON SALE TEST")
         console.log("Getting items on sale...")
         const getItemsOnSaleTx = await racksItems.getItemsOnSale()

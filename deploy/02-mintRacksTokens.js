@@ -6,7 +6,7 @@ const { ethers } =  require("hardhat");
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
 
-    const racksTokenQuantity = 100; //RacksTokens
+    const racksTokenQuantity = 10000; //RacksTokens
     const decimals = 1000000000000000000n; // 10e18 
     const { deployer } = await getNamedAccounts()
     const racksToken = await ethers.getContract("RacksToken", deployer)
@@ -16,3 +16,4 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 }
 
 module.exports.tags = ["all", "mint"]
+
