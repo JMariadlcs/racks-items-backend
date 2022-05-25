@@ -148,14 +148,6 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
     casePrice = 1;
     s_contractState = ContractState.Active;
 
-    /**
-    * Mint of initial supply
-    _mintSupply(address(this), 100000); // Jeans
-    _mintSupply(address(this), 1000); // Hoddie 
-    _mintSupply(address(this), 50000); // Watch
-    _mintSupply(address(this), 1000); // Coat
-    _mintSupply(address(this), 30000); // Shoes
-     */
   }
 
   /** 

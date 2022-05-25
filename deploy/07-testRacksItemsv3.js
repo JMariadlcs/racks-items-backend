@@ -33,7 +33,7 @@
         var testTokenUri = '{"name": "item2" , "image": "https://m.media-amazon.com/images/I/41Uvj2-tlSL._AC_UX385_.jpg"}'
         const setUriTx = await racksItems.setTokenUri(0, testTokenUri,{gasLimit: 9999999})
         console.log("Setting tokenUri...");
-        const setUriTxReceipt = await setUriTx.wait(2); 
+        const setUriTxReceipt = await setUriTx.wait(1); 
         console.log("Uri set!")
         const getUriTx = await racksItems.uri(0);
         console.log("Uri set to: " + getUriTx.toString());
@@ -62,7 +62,7 @@
         //6th -> listItemtoSell
         console.log("LIST ITEM TO SELL TEST")
         console.log("Listing item to sell...")
-        const listItemTx = await racksItems.listItemOnMarket(0, '50000000000000000000', {gasLimit: 9999999})
+        const listItemTx = await racksItems.listItemOnMarket(0, '5', {gasLimit: 9999999})
         const listItemTxReceipt = await listItemTx.wait(1);
         console.log("Item listed!");
        
@@ -99,35 +99,34 @@
         console.log("Tokens transfered!")
         
 
-        //8th buy item 
-        // An item need to be listed
-        console.log("LIST ITEM TO SELL TEST")
-        console.log("Listing item to sell...")
-        const listItemTx = await racksItems.listItemOnMarket(0, '50000000000000000000', {gasLimit: 9999999})
-        const listItemTxReceipt = await listItemTx.wait(1);
-        console.log("Item listed!");
-       
+        /*8th buy item 
+        - Buyer needs to approve rackToken to contract address
+        - Seller needs to approve RacksItems to contract address
         */
         console.log("BUY ITEM TEST")
         // It is first needed to make an approve
+
+        /*
         console.log("Approving rackstokens...")
-        const approveRacksTokenTx2 = await racksToken.approve(racksItems.address, '100000000000000000000')
+        const approveRacksTokenTx2 = await racksToken.approve(racksItems.address, '10000000000000000000000')
         const approveRacksTokenTxReceipt2 = await approveRacksTokenTx2.wait(1);
         console.log("RacksToken approved!")
-        /*
+        
         console.log("Approving ERC1155Token...")
         const approveERCTokenTx = await racksItems.setApprovalForAll(racksItems.address, true, {gasLimit: 9999999})
         const approveERCTokenTxReceipt = await approveERCTokenTx.wait(1);
         console.log("ERC1155 approved!")
-*/
-        // -> change account
+
+        */
+        // -> change account - ITEM IS BOUGHT WITH AN ACCOUNT THAT IS NOT OWNER -> change account
         // notice we are buying item with id:0 but as it was listed again the marketCountId is 1
         console.log("Buying item...")
-        const buyItemTx = await racksItems.buyItem(1, {gasLimit: 9999999})
+        const buyItemTx = await racksItems.buyItem(0, {gasLimit: 9999999})
         const buyItemTxReceipt = await buyItemTx.wait(1);
         console.log("Item bought!");
-        const getItemTx = await racksItems.getMarketItem(1)
+        const getItemTx = await racksItems.getMarketItem(0)
         console.log("Item: " + getItemTx)
+        
     }
     
     module.exports.tags = ["all", "testRacksItemsv3"]
