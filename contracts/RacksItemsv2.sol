@@ -689,8 +689,8 @@ contract RacksItemsv2 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   *  - uri: uri wanted to be set
   */
   function setTokenUri(uint256 tokenId, string memory _uri) public onlyOwnerOrAdmin {
-        require(bytes(s_uris[tokenId]).length == 0, "Can not set uri twice"); 
-        s_uris[tokenId] = _uri; 
+      require(bytes(s_uris[tokenId]).length == 0, "Can not set uri twice"); 
+      s_uris[tokenId] = _uri; 
   }
 
   

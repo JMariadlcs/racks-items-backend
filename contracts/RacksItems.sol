@@ -179,7 +179,7 @@ contract RacksItems is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV2 
   * - Apply modular function for the randomNumber to be between 0 and totalSupply of items
   * - Should choose an item
   */
-  function openCase() public contractIsActive {  
+  function openCase() public /*onlyVIP*/ contractIsActive {  
     racksToken.transferFrom(msg.sender, address(this), casePrice);
     uint256 randomNumber = _randomNumber()  % s_maxTotalSupply;
     uint256 totalCount = 0;
