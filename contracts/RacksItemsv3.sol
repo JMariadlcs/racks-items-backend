@@ -328,9 +328,8 @@ contract RacksItemsv2 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * - Update marketItems array
   * - Emit event 
   */
-  function sellItem(uint256 marketItemId, uint256 price) public {
+  function listItem(uint256 marketItemId, uint256 price) public {
     require(balanceOf(msg.sender, marketItemId) > 0, "Item not found.");
-    _safeTransferFrom(msg.sender, address(this), marketItemId, 1 ,"");
     _marketItems.push(
       itemOnSale(
         marketItemId,
@@ -395,10 +394,10 @@ contract RacksItemsv2 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * - Emit event 
   */
   function buyItem(uint256 marketItemId) public {
-    require(msg.sender != _marketItems[marketItemId].itemOwner);
-    require(_marketItems[marketItemId].isOnSale == true);
+    require(msg.sender != _marketItems[marketItemId].itemOwner, "You can not buy an item to yourself");
+    require(_marketItems[marketItemId].isOnSale == true, "This item is not on sale anymore.");
     racksToken.transferFrom(msg.sender, _marketItems[marketItemId].itemOwner, _marketItems[marketItemId].price);
-    _safeTransferFrom(address(this), msg.sender, _marketItems[marketItemId].tokenId, 1 ,"");
+    _safeTransferFrom(_marketItems[marketItemId].itemOwner, msg.sender, _marketItems[marketItemId].tokenId, 1 ,"");
     address oldOwner = _marketItems[marketItemId].itemOwner;
     _marketItems[marketItemId].itemOwner = msg.sender;
     _marketItems[marketItemId].isOnSale = false;
