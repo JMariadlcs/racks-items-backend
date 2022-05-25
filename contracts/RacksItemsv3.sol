@@ -77,6 +77,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   mapping (uint256 => string) private s_uris; 
   mapping(address => bool) private s_isSellingTicket;
   mapping(address => bool) private s_hasTicket; 
+  mapping(address => bool) private s_hadTicket;
   mapping(address => bool) private s_ticketIsLended;
 
   /// @notice Events
@@ -432,6 +433,9 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   /**
   * @notice This function is used for a VIP user to list 'Case Tickets' on the MarketPlace
   * @dev - Should check that user is Vip (Modifier)
+  * - Check is user has had a ticket before
+  *     - If so: check that is has ticket now
+  *     - if not: create ticket (first ticket in live for this user)
   * - Should check that user is NOT currently selling another ticket -> Users can only sell 1 ticket at the same time
   * - Include ticket on array
   * - Increase s_ticketCount
@@ -441,20 +445,24 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   */
   function listTicket(uint256 numTries, uint256 _hours, uint256 price) public onlyVIP {
     require(!s_isSellingTicket[msg.sender], "User is already currently selling a Ticket");
+    if(s_hadTicket[msg.sender]) {
     require(s_hasTicket[msg.sender], "User has ticket avaliable");
-    _tickets.push(
-      caseTicket(
-      s_ticketCount,
-      numTries,
-      _hours,
-      price,
-      msg.sender,
-      0,
-      true
-    ));
-    s_ticketCount++;
-    s_isSellingTicket[msg.sender] = true;
-    emit newTicketOnSale(msg.sender, numTries, _hours, price);
+    }
+      _tickets.push(
+        caseTicket(
+        s_ticketCount,
+        numTries,
+        _hours,
+        price,
+        msg.sender,
+        0,
+        true
+      ));
+      s_ticketCount++;
+      s_isSellingTicket[msg.sender] = true;
+      s_hadTicket[msg.sender] = true;
+      s_hasTicket[msg.sender] = false;
+      emit newTicketOnSale(msg.sender, numTries, _hours, price);
   }
 
   /**
@@ -468,6 +476,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
     require(_tickets[ticketId].owner == msg.sender, "User is not owner of this ticket");
     _tickets[ticketId].isAvaliable = false;
     s_isSellingTicket[msg.sender] = false;
+    s_hasTicket[msg.sender] = true;
     emit unListTicketOnSale(msg.sender);
   }
 
@@ -503,8 +512,9 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
     s_hasTicket[_tickets[ticketId].owner] = false;
     s_isSellingTicket[_tickets[ticketId].owner] = false;
     s_ticketIsLended[_tickets[ticketId].owner] = true;
-    _tickets[ticketId].owner = msg.sender;
     s_hasTicket[msg.sender] = true;
+    _tickets[ticketId].owner = msg.sender;
+    _tickets[ticketId].isAvaliable = false;
     emit ticketBought(ticketId, oldOwner, msg.sender, _tickets[ticketId].price);
   }
 
@@ -521,6 +531,8 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
     s_hasTicket[_tickets[ticketId].owner] = false;
     s_hasTicket[msg.sender] = true;
     s_ticketIsLended[msg.sender] = false;
+    _tickets[ticketId].owner = msg.sender;
+    s_hasTicket[_tickets[ticketId].owner] = true;
     emit ticketClaimedBack(_tickets[ticketId].owner, msg.sender);
   }
   
@@ -546,7 +558,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   /**
   * @notice Function used to return ticket that are currently on sale
   */
-  function getMarketTicket(uint ticketId) public view returns(caseTicket memory) {
+  function getMarketTicket(uint256 ticketId) public view returns(caseTicket memory) {
     return _tickets[ticketId];
   }
 
@@ -572,6 +584,15 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
       }
     }
     return tickets;
+  }
+  
+  /**
+  * @notice Function used to view how much time is left for lended Ticket
+  */
+  function getTicketDurationLeft(uint256 ticketId) public view returns (uint256) {
+    require(block.timestamp - _tickets[ticketId].timeWhenSold > (_tickets[ticketId].duration) / 60, "Ticket has no time left for lending" );
+    uint256 timeleft = block.timestamp - _tickets[ticketId].timeWhenSold - (_tickets[ticketId].duration) / 60;
+    return timeleft;
   }
 
   // FUNCTIONS RELATED TO "USERS"
