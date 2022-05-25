@@ -202,14 +202,14 @@ contract RacksItemsTicket is ERC1155, ERC1155Holder, AccessControl, VRFConsumerB
    /**
   * @notice Function used to 'open a case' and get an item
   * @dev 
+  * - Should check that user owns a Ticket -> modifier
   * - Should check that msg.value is bigger than casePrice
   * - Should transfer msg.value to the contract
   * - Internally calls randomNumber() 
   * - Apply modular function for the randomNumber to be between 0 and totalSupply of items
   * - Should choose an item
   */
-  function openCase() public {  
-    require (isVip(msg.sender) || s_hasTicket[msg.sender], "User is NOT VIP and does NOT owns a ticket");
+  function openCase() public ownsTicket contractIsActive {  
     racksToken.transferFrom(msg.sender, address(this), casePrice);
     uint256 randomNumber = _randomNumber()  % s_maxTotalSupply;
     uint256 totalCount = 0;
@@ -217,10 +217,10 @@ contract RacksItemsTicket is ERC1155, ERC1155Holder, AccessControl, VRFConsumerB
 
     for(uint256 i = 0 ; i < s_tokenCount; i++) {
       uint256 _newTotalCount = totalCount + s_maxSupply[i] ;
-      if(randomNumber > totalCount) {
+      if(randomNumber > _newTotalCount) {
         totalCount = _newTotalCount;
       }else {
-        item = i-1;
+        item = i;
         if(balanceOf(address(this),item)==0){
           for(uint256 j = item-1; j >= 0; j--){
             if (balanceOf(address(this),j)>0){
