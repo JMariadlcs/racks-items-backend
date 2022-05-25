@@ -367,12 +367,12 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   /**
   * @notice Function used to exchange a token item for a real physical clothe.
   */
-  function exchangeItem(uint256 marketItemId) public {
-    require(balanceOf(msg.sender, marketItemId) > 0);
-     _burn(msg.sender, marketItemId, 1);
-     s_maxSupply[marketItemId] -= 1;
-     s_maxTotalSupply -=1;
-     emit itemExchanged(msg.sender, marketItemId);
+  function exchangeItem(uint256 tokenId) public {
+    require(balanceOf(msg.sender, tokenId) > 0);
+    _burn(msg.sender, tokenId, 1);
+    s_maxSupply[tokenId] -= 1;
+    s_maxTotalSupply -=1;
+    emit itemExchanged(msg.sender, tokenId);
   }
 
   /**
@@ -517,7 +517,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   */
   function claimTicketBack(uint256 ticketId) public {
     require(s_ticketIsLended[msg.sender], "User did not sell any Ticket");
-    require((_tickets[ticketId].timeWhenSold - block.timestamp) > (_tickets[ticketId].duration) / 60, "Duration of the Ticket is still avaliable");
+    require((block.timestamp - _tickets[ticketId].timeWhenSold) > (_tickets[ticketId].duration) / 60, "Duration of the Ticket is still avaliable");
     s_hasTicket[_tickets[ticketId].owner] = false;
     s_hasTicket[msg.sender] = true;
     s_ticketIsLended[msg.sender] = false;
@@ -529,7 +529,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   *        - If not: just decrease numTries
   *        - If so: decrease numTries, update Avaliability and mappings
   */
-  function decreaseTicketTries(address user) public {
+  function decreaseTicketTries(address user) internal {
     for (uint256 i = 0; i < _tickets.length; i++) {
         if (_tickets[i].owner == user) {
             if(_tickets[i].numTries != 1) { // Case it was not the last trie avaliable
@@ -538,8 +538,8 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
                 _tickets[i].numTries--;
                 _tickets[i].isAvaliable = false;
                 s_hasTicket[user] = false;
-        }
-     } 
+            }
+        }       
     } 
   }
 
@@ -710,7 +710,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   */
   function withdrawAllFunds(address wallet) public onlyOwner {
     require(racksToken.balanceOf(address(this)) > 0, "No funds to withdraw");
-    racksToken.transfer(wallet, address(this).balance);
+    racksToken.transfer(wallet, racksToken.balanceOf(address(this)));
   }
 
   /// @notice Receive function
