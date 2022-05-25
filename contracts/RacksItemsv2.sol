@@ -523,7 +523,7 @@ contract RacksItemsv2 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * - Update mappings
   * - Emit event
   */
-  function claimTicketBack(uint256 ticketId) public {
+  function claimTicketBack(uint256 ticketId) public onlyVIP {
     require(s_ticketIsLended[msg.sender], "User did not sell any Ticket");
     require((_tickets[ticketId].timeWhenSold - block.timestamp) > (_tickets[ticketId].duration) / 60, "Duration of the Ticket is still avaliable");
     s_hasTicket[_tickets[ticketId].owner] = false;

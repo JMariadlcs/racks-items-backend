@@ -10,9 +10,9 @@
         const racksToken = await ethers.getContract("RacksToken", deployer)
 
         // FUNCTION TESTING
-        
-        //1st -> Change casePrice
         /*
+        //1st -> Change casePrice
+        
         console.log("CHANGE CASE PRICE TEST")
         const setCasePricetTx = await racksItems.setCasePrice('10000000000000000', {gasLimit: 9999999})
         console.log("Changing case price to " + setCasePricetTx.toString() + "...")
@@ -51,7 +51,7 @@
         const openCaseTxReceipt = await openCaseTx.wait(1)
         console.log("Case opened! you got item " + openCaseTx.toString())
 
-       
+       /*
         //5th -> withdraw all funds
         console.log("WITHDRAW ALL FUNDS TEST")
         console.log("Withdrawing all funds to address: " + deployer.toString() + "...")
@@ -65,7 +65,7 @@
         const withdrawSpFundsTx = await racksItems.withdrawFunds(deployer, '5000000000', {gasLimit: 9999999})
         const withdrawSpFundsTxReceipt = await withdrawSpFundsTx.wait(1)
         console.log("Funds succesfully withdrawed!")
-
+*/
         //6th -> listItemtoSell
         console.log("LIST ITEM TO SELL TEST")
         console.log("Listing item to sell...")
@@ -77,7 +77,7 @@
         console.log("Getting items on sale...")
         const getItemsOnSaleTx = await racksItems.getItemsOnSale()
         console.log("List of items on sale: " + getItemsOnSaleTx); 
-
+/*
         //7th -> changeItemPrice
         console.log("CHANGE ITEM PRICE TEST")
         console.log("Changing item price...")
@@ -106,11 +106,10 @@
         console.log("Tokens transfered!")
         
 
-        /*8th buy item 
-        - Buyer needs to approve rackToken to contract address
-        - Seller needs to approve RacksItems to contract address
-        */
-       /*
+        // 8th buy item 
+        // Buyer needs to approve rackToken to contract address
+        // Seller needs to approve RacksItems to contract address
+
         console.log("BUY ITEM TEST")
         console.log("Approving rackstokens...")
         const approveRacksTokenTx2 = await racksToken.approve(racksItems.address, '10000000000000000000000')

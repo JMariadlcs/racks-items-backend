@@ -443,10 +443,10 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * - Emit event
   *
   */
-  function listTicket(uint256 numTries, uint256 _hours, uint256 price) public onlyVIP {
+  function listTicket(uint256 numTries, uint256 _hours, uint256 price) public /*onlyVIP*/ {
     require(!s_isSellingTicket[msg.sender], "User is already currently selling a Ticket");
     if(s_hadTicket[msg.sender]) {
-    require(s_hasTicket[msg.sender], "User has ticket avaliable");
+    require(s_hasTicket[msg.sender], "User has not ticket avaliable");
     }
       _tickets.push(
         caseTicket(
@@ -471,7 +471,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * - Should check that user has a listed ticket
   * - Emit event
   */
-  function unListTicket(uint256 ticketId) public onlyVIP {
+  function unListTicket(uint256 ticketId) public /*onlyVIP*/ {
     require(s_isSellingTicket[msg.sender], "User is not currently selling a Ticket");
     require(_tickets[ticketId].owner == msg.sender, "User is not owner of this ticket");
     _tickets[ticketId].isAvaliable = false;
@@ -486,10 +486,11 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * - Should check that user has a listed ticket
   * - Emit event
   */
-  function changeTicketConditions(uint256 ticketId, uint256 newTries, uint256 newPrice) public onlyVIP {
+  function changeTicketConditions(uint256 ticketId, uint256 newTries, uint256 newHours, uint256 newPrice) public /*onlyVIP*/ {
     require(s_isSellingTicket[msg.sender], "User is not currently selling a Ticket");
     require(_tickets[ticketId].owner == msg.sender, "User is not owner of this ticket");
     _tickets[ticketId].price = newPrice;
+    _tickets[ticketId].duration = newHours;
     _tickets[ticketId].numTries = newTries;
     emit ticketPriceChanged(msg.sender, newTries, newPrice);
   }
@@ -525,7 +526,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * - Update mappings
   * - Emit event
   */
-  function claimTicketBack(uint256 ticketId) public {
+  function claimTicketBack(uint256 ticketId) public /*onlyVIP*/ {
     require(s_ticketIsLended[msg.sender], "User did not sell any Ticket");
     require((block.timestamp - _tickets[ticketId].timeWhenSold) > (_tickets[ticketId].duration) / 60, "Duration of the Ticket is still avaliable");
     s_hasTicket[_tickets[ticketId].owner] = false;
