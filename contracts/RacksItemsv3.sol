@@ -448,7 +448,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * - Emit event
   *
   */
-  function listTicket(uint256 numTries, uint256 _hours, uint256 price) public /*onlyVIP*/ {
+  function listTicket(uint256 numTries, uint256 _hours, uint256 price) public onlyVIP {
     require(!s_isSellingTicket[msg.sender], "User is already currently selling a Ticket");
     if(s_hadTicket[msg.sender]) {
     require(s_hasTicket[msg.sender], "User has not ticket avaliable");
@@ -476,7 +476,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * - Should check that user has a listed ticket
   * - Emit event
   */
-  function unListTicket(uint256 ticketId) public /*onlyVIP*/ {
+  function unListTicket(uint256 ticketId) public onlyVIP {
     require(s_isSellingTicket[msg.sender], "User is not currently selling a Ticket");
     require(_tickets[ticketId].owner == msg.sender, "User is not owner of this ticket");
     _tickets[ticketId].isAvaliable = false;
@@ -491,7 +491,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * - Should check that user has a listed ticket
   * - Emit event
   */
-  function changeTicketConditions(uint256 ticketId, uint256 newTries, uint256 newHours, uint256 newPrice) public /*onlyVIP*/ {
+  function changeTicketConditions(uint256 ticketId, uint256 newTries, uint256 newHours, uint256 newPrice) public onlyVIP {
     require(s_isSellingTicket[msg.sender], "User is not currently selling a Ticket");
     require(_tickets[ticketId].owner == msg.sender, "User is not owner of this ticket");
     _tickets[ticketId].price = newPrice;
@@ -531,7 +531,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * - Update mappings
   * - Emit event
   */
-  function claimTicketBack(uint256 ticketId) public /*onlyVIP*/ {
+  function claimTicketBack(uint256 ticketId) public onlyVIP {
     require(s_ticketIsLended[msg.sender], "User did not sell any Ticket");
     require(((block.timestamp - _tickets[ticketId].timeWhenSold) > (_tickets[ticketId].duration) / 3600) || (_tickets[ticketId].numTries == 0), "Duration of the Ticket or numTries is still avaliable");
     address oldOwner = _tickets[ticketId].owner;
@@ -624,8 +624,8 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * @dev Only callable by the Owner
   */
   function _isOwnerOrAdmin(address user) internal view returns (bool) {
-      require(_owner == user || hasRole(ADMIN_ROLE, user));
-      return true;
+    require(_owner == user || hasRole(ADMIN_ROLE, user));
+    return true;
   }
 
   /**

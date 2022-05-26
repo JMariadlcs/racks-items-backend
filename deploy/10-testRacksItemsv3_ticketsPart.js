@@ -13,14 +13,14 @@
         const racksToken = await ethers.getContract("RacksToken", deployer)
         console.log("RacksItemsv3 address: " + racksItems.address.toString())
         console.log("RacksToken address: " + racksToken.address.toString())
- /*
+ 
         //0 -> set RacksMember
         console.log("SET RACKS MEMBER TEST")
         console.log("Setting racks member....")
         const setRacksMemberTx = await racksItems.setSingleRacksMember(deployer)
         const setRacksMemberTxReceipt = await setRacksMemberTx.wait(1)
         console.log("Racks member set!")
- */
+ 
         //1st -> list Ticket
         console.log("LIST TICKET TEST")
         console.log("Listing ticket...")
