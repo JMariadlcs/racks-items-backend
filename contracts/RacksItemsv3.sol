@@ -46,7 +46,6 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
 
   /// @notice tokens
   IERC721 MR_CRYPTO;
-  address public constant i_MrCryptoAddress = 0xeF453154766505FEB9dBF0a58E6990fd6eB66969;
   IERC20 racksToken;
   
   /// @notice Standard variables
@@ -127,7 +126,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
     _;
   }
 
-  constructor(address vrfCoordinatorV2, bytes32 gasLane, uint64 subscriptionId, uint32 callbackGasLimit, address _racksTokenAddress) 
+  constructor(address vrfCoordinatorV2, bytes32 gasLane, uint64 subscriptionId, uint32 callbackGasLimit, address _racksTokenAddress, address _MockMrCryptoAddress) 
   VRFConsumerBaseV2(vrfCoordinatorV2)
   ERC1155(""){
     /**
@@ -141,7 +140,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
     /**
     * Initialization of RacksItem contract variables
     */
-    MR_CRYPTO = IERC721(i_MrCryptoAddress);
+    MR_CRYPTO = IERC721(_MockMrCryptoAddress);
     racksToken = IERC20(_racksTokenAddress);
     _owner = msg.sender;
     s_tokenCount = 0;
@@ -504,7 +503,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * - Emit event
   */
   function buyTicket(uint256 ticketId) public {
-    require(!isVip(msg.sender));
+    require(!isVip(msg.sender), "A VIP user can not buy a ticket");
     require(_tickets[ticketId].owner != msg.sender, "You can not buy a ticket to your self");
     require(_tickets[ticketId].isAvaliable == true, "Ticket is not currently avaliable");
     address oldOwner = _tickets[ticketId].owner;
@@ -529,12 +528,14 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   function claimTicketBack(uint256 ticketId) public /*onlyVIP*/ {
     require(s_ticketIsLended[msg.sender], "User did not sell any Ticket");
     require((block.timestamp - _tickets[ticketId].timeWhenSold) > (_tickets[ticketId].duration) / 60, "Duration of the Ticket is still avaliable");
+    address oldOwner = _tickets[ticketId].owner;
     s_hasTicket[_tickets[ticketId].owner] = false;
     s_hasTicket[msg.sender] = true;
     s_ticketIsLended[msg.sender] = false;
     _tickets[ticketId].owner = msg.sender;
+    _tickets[ticketId].isAvaliable = true;
     s_hasTicket[_tickets[ticketId].owner] = true;
-    emit ticketClaimedBack(_tickets[ticketId].owner, msg.sender);
+    emit ticketClaimedBack(oldOwner, msg.sender);
   }
   
   /** @notice Function used to decrease Ticket tries avaliables
@@ -591,7 +592,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * @notice Function used to view how much time is left for lended Ticket
   */
   function getTicketDurationLeft(uint256 ticketId) public view returns (uint256) {
-    require(block.timestamp - _tickets[ticketId].timeWhenSold > (_tickets[ticketId].duration) / 60, "Ticket has no time left for lending" );
+    require(block.timestamp - _tickets[ticketId].timeWhenSold > (_tickets[ticketId].duration) / 3600, "Ticket has no time left for lending" );
     uint256 timeleft = block.timestamp - _tickets[ticketId].timeWhenSold - (_tickets[ticketId].duration) / 60;
     return timeleft;
   }
@@ -603,10 +604,12 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * @dev - Require users MrCrypro's balance is > '
   * - Require that RacksMembers user's attribute is true
   */
-  function isVip(address user) public view returns(bool){
-    require(MR_CRYPTO.balanceOf(user) > 0);
-    require(s_gotRacksMembers[user]);
-    return true;
+  function isVip(address user) public view returns(bool) {
+    if((MR_CRYPTO.balanceOf(user) > 0) && (s_gotRacksMembers[user])) {
+      return true;
+    } else{
+      return false;
+    } 
   }
 
   /**
