@@ -20,7 +20,7 @@
         const setRacksMemberTx = await racksItems.setSingleRacksMember(deployer)
         const setRacksMemberTxReceipt = await setRacksMemberTx.wait(1)
         console.log("Racks member set!")
- 
+
         //1st -> list Ticket
         console.log("LIST TICKET TEST")
         console.log("Listing ticket...")
@@ -31,7 +31,7 @@
         const getITicketsOnSaleTx = await racksItems.getITicketsOnSale()
         console.log("Tickets on sale: " + getITicketsOnSaleTx)
         
-      
+      /*
         //2nd -> unlist Ticket
         console.log("UNLIST TICKET TEST")
         console.log("UnListing ticket...")
@@ -52,14 +52,7 @@
         const getITicketsOnSaleTx3 = await racksItems.getITicketsOnSale()
         console.log("Tickets on sale: " + getITicketsOnSaleTx3)
 
-        */
-        //4th -> get ticket duration left
-        console.log("GET TICKET DURATION LEFT")
-        console.log("Getting ticket duration left...")
-        const getTicketDurationLeftTx = await racksItems.getTicketDurationLeft(0)
-        console.log("Ticket duration left is: " + getTicketDurationLeftTx)
-/*
-        //5th -> buy ticket
+        //4th -> buy ticket
         // need to change account! (buy with an account that is not owner and NOT VIP)
         console.log("BUY TICKET TEST")
         const isVipTx = await racksItems.isVip(deployer)
@@ -77,12 +70,18 @@
          
         const getITicketsOnSaleTx5 = await racksItems.getITicketsOnSale()
         console.log("Tickets on sale: " + getITicketsOnSaleTx5)
+*/
+        //5th -> get ticket duration left
+        console.log("GET TICKET DURATION LEFT")
+        console.log("Getting ticket duration left...")
+        const getTicketDurationLeftTx = await racksItems.getTicketDurationLeft(0)
+        console.log("Ticket duration left is: " + getTicketDurationLeftTx)
 
         //6th -> openCase and see if tickets tries decreases
         // change account to another user that is not owner!
         const getTicketInfoTx = await racksItems.getMarketTicket(0)
         console.log("Ticket info: " + getTicketInfoTx);
-        
+       
         const approveRacksTokenTx2 = await racksToken.approve(racksItems.address, 9000000000000000000n)
         const approveRacksTokenTxReceipt3 = await approveRacksTokenTx2.wait(1);
         console.log("RacksToken approved!")
@@ -92,6 +91,16 @@
         console.log("Case opened! you got item " + openCaseTx.toString())
 
         const getTicketInfoTx2 = await racksItems.getMarketTicket(0)
-        console.log("Ticket info: " + getTicketInfoTx2);*/
+        console.log("Ticket info: " + getTicketInfoTx2);
+/*
+        //7th -> claimTicket back
+        console.log("CLAIM TICKET BACK TEST")
+        console.log("Claiming ticket back to owner...")
+        const claimTicketTx = await racksItems.claimTicketBack(0)
+        const claimTicketTxReceipt = await claimTicketTx.wait(1)
+        console.log("Ticket is back!")
+
+        const getTicketInfoTx3 = await racksItems.getMarketTicket(0)
+        console.log("Ticket info: " + getTicketInfoTx3); */
     }
     module.exports.tags = ["all", "testRacksItemsv3_ticketsPart"]

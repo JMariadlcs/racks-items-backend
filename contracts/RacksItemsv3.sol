@@ -120,6 +120,13 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
     _;
   }
 
+  /**  @notice Check that there is at least 1 item avaliable so the user can open a case for example
+  */
+  modifier supplyAvaliable() {
+    require(s_maxTotalSupply > 0, "There are no items avaliable");
+    _;
+  }
+
   /// @notice Check if contract state is Active
   modifier contractIsActive() {
     require(s_contractState == ContractState.Active, "Contract is not active at this moment");
@@ -205,11 +212,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * - Apply modular function for the randomNumber to be between 0 and totalSupply of items
   * - Should choose an item
   */
-  function openCase() public contractIsActive {  
-    if(!isVip(msg.sender)){ // Case where user is not VIP -> needs a ticket
-      require(s_hasTicket[msg.sender], "User is NOT VIP and does not owns a Ticket.");
-    }
-
+  function openCase() public ownsTicket supplyAvaliable contractIsActive  {  
     racksToken.transferFrom(msg.sender, address(this), casePrice);
     uint256 randomNumber = _randomNumber()  % s_maxTotalSupply;
     uint256 totalCount = 0;
@@ -230,6 +233,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
           }
         }
         _safeTransferFrom(address(this), msg.sender, item , 1,"");
+        s_maxTotalSupply--;
         break;
       }
     }
@@ -596,20 +600,35 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   
   /**
   * @notice Function used to view how much time is left for lended Ticket
+  * @dev This function returns 2 parameters
+  * - uint256: timeLeft 
+  * - bool: false if numTries == 0
+  *         true if numTries > 0
   */
-  function getTicketDurationLeft(uint256 ticketId) public view returns (uint256) {
+   function getTicketDurationLeft(uint256 ticketId) public view returns (uint256, bool) {
     require(_tickets[ticketId].timeWhenSold > 0, "Ticket is not sold yet.");
-    uint256 noTimeLeft = 0;
-    if((_tickets[ticketId].numTries == 0) || (((block.timestamp - _tickets[ticketId].timeWhenSold)/60) == (_tickets[ticketId].duration * 60))) {
-      return noTimeLeft;
-    } else{
-      uint256 timeLeft = (_tickets[ticketId].duration * 60) - ((block.timestamp - _tickets[ticketId].timeWhenSold)/60);
-      return timeLeft;
+    uint256 timeLeft;
+    if ((_tickets[ticketId].numTries == 0)) {
+      if((((block.timestamp - _tickets[ticketId].timeWhenSold)/60) == (_tickets[ticketId].duration * 60))) {
+        timeLeft = 0;
+        return (timeLeft, false);
+      }else {
+        timeLeft = (_tickets[ticketId].duration * 60) - ((block.timestamp - _tickets[ticketId].timeWhenSold)/60);
+        return (timeLeft, false);
+      } 
+    } else {
+      if((((block.timestamp - _tickets[ticketId].timeWhenSold)/60) == (_tickets[ticketId].duration * 60))) {
+        timeLeft = 0;
+        return (timeLeft, true);
+      }else {
+        timeLeft = (_tickets[ticketId].duration * 60) - ((block.timestamp - _tickets[ticketId].timeWhenSold)/60);
+        return (timeLeft, true);
+      } 
     }
   }
 
+ 
   // FUNCTIONS RELATED TO "USERS"
-
   /**
   * @notice Check if user is RacksMembers and owns at least 1 MrCrypto
   * @dev - Require users MrCrypro's balance is > '
@@ -635,11 +654,22 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   /**
   * @notice Set RacksMember attribute as true for a user that is Member
   * @dev Only callable by the Owner
-  * Require comented because maybe owner or admin are trying to set as true some address that was already set as true
+  * Check that user was not already racksMember
+  * - If so: do nothing
+  * - If not: check if user owns MrCrypto
+  *      - If so: set racksMember and give Ticket
+  *      - If not: set racksMember
+  * 
   */
   function setSingleRacksMember(address user) public onlyOwnerOrAdmin {
-    //require(!s_gotRacksMembers[user], "User is already RacksMember");
-    s_gotRacksMembers[user] = true;
+    if(s_gotRacksMembers[user] == false) { // Case user is new RacksMember 
+      if((MR_CRYPTO.balanceOf(user) > 0)) { //Case user is new and owns MrCrypto -> set member + ticket
+          s_gotRacksMembers[user] = true;
+          s_hasTicket[user] = true;
+      } else{ // Case user is new and not owns MrCrypto -> just set member
+          s_gotRacksMembers[user] = true;
+      }
+    } 
   }
 
   /**
@@ -649,8 +679,14 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   */
   function setListRacksMembers(address[] memory users) public onlyOwnerOrAdmin {
     for (uint256 i = 0; i < users.length; i++) {
-      //require(!s_gotRacksMembers[users[i]], "User is already RacksMember");
-       s_gotRacksMembers[users[i]] = true;
+      if(s_gotRacksMembers[users[i]] == false) { // Case user is new RacksMember 
+        if((MR_CRYPTO.balanceOf(users[i]) > 0)) { //Case user is new and owns MrCrypto -> set member + ticket
+          s_gotRacksMembers[users[i]] = true;
+          s_hasTicket[users[i]] = true;
+        } else{ // Case user is new and not owns MrCrypto -> just set member
+          s_gotRacksMembers[users[i]] = true;
+      }
+    } 
     }
   }
 
@@ -662,6 +698,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   function removeSingleRacksMember(address user) public onlyOwnerOrAdmin {
     //require(s_gotRacksMembers[user], "User is already not RacksMember");
     s_gotRacksMembers[user] = false;
+    s_hasTicket[user] = false;
   }
 
   /**
@@ -673,6 +710,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
     for (uint256 i = 0; i < users.length; i++) {
       //require(s_gotRacksMembers[users[i]], "User is already not RacksMember");
       s_gotRacksMembers[users[i]] = false;
+      s_hasTicket[users[i]] = false;
     }
   }
 
