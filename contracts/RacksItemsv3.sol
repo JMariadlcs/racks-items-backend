@@ -205,7 +205,11 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * - Apply modular function for the randomNumber to be between 0 and totalSupply of items
   * - Should choose an item
   */
-  function openCase() public /*ownsTicket*/ contractIsActive {  
+  function openCase() public contractIsActive {  
+    if(!isVip(msg.sender)){ // Case where user is not VIP -> needs a ticket
+      require(s_hasTicket[msg.sender], "User is NOT VIP and does not owns a Ticket.");
+    }
+
     racksToken.transferFrom(msg.sender, address(this), casePrice);
     uint256 randomNumber = _randomNumber()  % s_maxTotalSupply;
     uint256 totalCount = 0;
@@ -229,7 +233,9 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
         break;
       }
     }
+    if (!isVip(msg.sender)){ // Case opener is someone that bought a ticket
     decreaseTicketTries(msg.sender);
+    }
     emit CaseOpened(msg.sender, casePrice, item);
   }
 
@@ -527,7 +533,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   */
   function claimTicketBack(uint256 ticketId) public /*onlyVIP*/ {
     require(s_ticketIsLended[msg.sender], "User did not sell any Ticket");
-    require((block.timestamp - _tickets[ticketId].timeWhenSold) > (_tickets[ticketId].duration) / 60, "Duration of the Ticket is still avaliable");
+    require(((block.timestamp - _tickets[ticketId].timeWhenSold) > (_tickets[ticketId].duration) / 3600) || (_tickets[ticketId].numTries == 0), "Duration of the Ticket or numTries is still avaliable");
     address oldOwner = _tickets[ticketId].owner;
     s_hasTicket[_tickets[ticketId].owner] = false;
     s_hasTicket[msg.sender] = true;
@@ -592,8 +598,9 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * @notice Function used to view how much time is left for lended Ticket
   */
   function getTicketDurationLeft(uint256 ticketId) public view returns (uint256) {
-    require(block.timestamp - _tickets[ticketId].timeWhenSold > (_tickets[ticketId].duration) / 3600, "Ticket has no time left for lending" );
-    uint256 timeleft = block.timestamp - _tickets[ticketId].timeWhenSold - (_tickets[ticketId].duration) / 60;
+    require(_tickets[ticketId].timeWhenSold > 0, "Ticket is not sold yet.");
+    require((block.timestamp - _tickets[ticketId].timeWhenSold) > (_tickets[ticketId].duration / 3600), "Ticket has no time left for lending." );
+    uint256 timeleft = (block.timestamp - _tickets[ticketId].timeWhenSold)*60 - (_tickets[ticketId].duration / 60);
     return timeleft;
   }
 
