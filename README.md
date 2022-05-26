@@ -14,7 +14,7 @@ Eligible users for participating in the above mentioned 'case openning' are the 
 
 - **VIP USERS**:
 1. Users that **OWNS AL LEAST 1 MrCrypto TOKEN** ✅. 
-2. Users that also **ARE "RACKSMEMBERS** ✅.
+2. Users that also **ARE "RACKSMEMBERS"** ✅.
 
 
 - **NORMAL USERS**:
