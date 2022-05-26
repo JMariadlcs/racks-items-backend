@@ -533,7 +533,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   */
   function claimTicketBack(uint256 ticketId) public onlyVIP {
     require(s_ticketIsLended[msg.sender], "User did not sell any Ticket");
-    require(((block.timestamp - _tickets[ticketId].timeWhenSold) > (_tickets[ticketId].duration) / 3600) || (_tickets[ticketId].numTries == 0), "Duration of the Ticket or numTries is still avaliable");
+    require((_tickets[ticketId].numTries == 0) || (((block.timestamp - _tickets[ticketId].timeWhenSold)/60) == (_tickets[ticketId].duration * 60)), "Duration of the Ticket or numTries is still avaliable");
     address oldOwner = _tickets[ticketId].owner;
     s_hasTicket[_tickets[ticketId].owner] = false;
     s_hasTicket[msg.sender] = true;
@@ -599,9 +599,13 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   */
   function getTicketDurationLeft(uint256 ticketId) public view returns (uint256) {
     require(_tickets[ticketId].timeWhenSold > 0, "Ticket is not sold yet.");
-    require((block.timestamp - _tickets[ticketId].timeWhenSold) > (_tickets[ticketId].duration / 3600), "Ticket has no time left for lending." );
-    uint256 timeleft = (block.timestamp - _tickets[ticketId].timeWhenSold)*60 - (_tickets[ticketId].duration / 60);
-    return timeleft;
+    uint256 noTimeLeft = 0;
+    if((_tickets[ticketId].numTries == 0) || (((block.timestamp - _tickets[ticketId].timeWhenSold)/60) == (_tickets[ticketId].duration * 60))) {
+      return noTimeLeft;
+    } else{
+      uint256 timeLeft = (_tickets[ticketId].duration * 60) - ((block.timestamp - _tickets[ticketId].timeWhenSold)/60);
+      return timeLeft;
+    }
   }
 
   // FUNCTIONS RELATED TO "USERS"

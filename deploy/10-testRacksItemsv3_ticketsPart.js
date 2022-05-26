@@ -13,7 +13,7 @@
         const racksToken = await ethers.getContract("RacksToken", deployer)
         console.log("RacksItemsv3 address: " + racksItems.address.toString())
         console.log("RacksToken address: " + racksToken.address.toString())
- 
+ /*
         //0 -> set RacksMember
         console.log("SET RACKS MEMBER TEST")
         console.log("Setting racks member....")
@@ -30,7 +30,7 @@
 
         const getITicketsOnSaleTx = await racksItems.getITicketsOnSale()
         console.log("Tickets on sale: " + getITicketsOnSaleTx)
-        /*
+        
       
         //2nd -> unlist Ticket
         console.log("UNLIST TICKET TEST")
@@ -52,7 +52,7 @@
         const getITicketsOnSaleTx3 = await racksItems.getITicketsOnSale()
         console.log("Tickets on sale: " + getITicketsOnSaleTx3)
 
-        
+        */
         //4th -> get ticket duration left
         console.log("GET TICKET DURATION LEFT")
         console.log("Getting ticket duration left...")
