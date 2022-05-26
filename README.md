@@ -1,6 +1,6 @@
 # RACKS ITEMS 👕👖
 
-This is an implementation of a 'Tokenized Decentralized Commerce' where users are able to win clothes that are represented by ERC-1155 tokens.
+This is an implementation of a 'Tokenized Decentralized Commerce' where users are able to win clothes that are represented by ERC-1155 tokens on the Polygon Network.
 
 The way users are able to win different clothes is by opening a **FULLY DENCENTRALIZED RANDOM CASE** by paying Racks Tokens.
 
@@ -46,6 +46,7 @@ Appart from the funny user experience that RacksItems proporcionates to the user
 
 1. Owner token (RacksToken) is used to open cases -> Token demand grows
 2. Structure of the project is designed in a way that the owner/admins can include new items each time they want.
+4. Owner/admins can regulate the supply of the items -> can introduce new items more "rare" if supply is lower compare with the rest of the items.
 3. Owner/admins are the ones wo also set up the uris metadata for the items.
 
 ## Randomness (Chainlink VRF)
