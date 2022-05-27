@@ -326,12 +326,14 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * @notice Function used to sell an item on the marketplace
   * @dev
   * - Needs to check balanceOf item trying to be sold
+  * - Needs to check if user has correctly done an Approve for the item transfer in case it is sold
   * - Needs to transfer item 
   * - Update marketItems array
   * - Emit event 
   */
   function listItemOnMarket(uint256 marketItemId, uint256 price) public {
     require(balanceOf(msg.sender, marketItemId) > 0, "Item not found.");
+    require(isApprovedForAll(msg.sender, address(this)), "Approved is not correctly done.");
     _marketItems.push(
       itemOnSale(
         marketItemId,
