@@ -6,6 +6,17 @@ The way users are able to win different clothes is by opening a **FULLY DENCENTR
 
 A second hand MarketPlace of items is also being implemented.
 
+This repo contains 6 implemented Smart Contracts:
+
+- [RacksToken.sol](https://github.com/JMariadlcs/racks-items-backend/blob/main/contracts/RacksToken.sol): an implementation of RacksToken.
+- [MockMrCryptoToken.sol](https://github.com/JMariadlcs/racks-items-backend/blob/main/contracts/MockMrCryptoToken.sol): a simulation of MrCrypto NFT needed to test some functions.
+- [RacksItems.sol](https://github.com/JMariadlcs/racks-items-backend/blob/main/contracts/RacksItems.sol) and [RacksItemsv2.sol](https://github.com/JMariadlcs/racks-items-backend/blob/main/contracts/RacksItemsv2.sol): old versions of the project.
+- [RacksItemsv3.sol](https://github.com/JMariadlcs/racks-items-backend/blob/main/contracts/RacksItemsv3.sol): final version of the project.
+- [IRacksItems.sol](https://github.com/JMariadlcs/racks-items-backend/blob/main/contracts/IRacksItems.sol): Interface of the project
+
+If also include the corresponding tests for each part inside the [deploy](https://github.com/JMariadlcs/racks-items-backend/tree/main/deploy) directory.
+
+
 🚨 Every detail is going to be described in this report.
 
 ## Who can participate?
