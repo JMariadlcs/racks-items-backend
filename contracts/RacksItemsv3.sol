@@ -351,13 +351,11 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * @notice Function used to unlist an item from marketplace
   * @dev
   * - Needs to check that user is trying to unlist an item he owns
-  * - Needs to transfer item from contract to user address
   * - Update item's sold variable
   * - Emit event
   */
   function unListItem(uint256 marketItemId) public {
     require(_marketItems[marketItemId].itemOwner == msg.sender, "You are not the owner of this item.");
-    _safeTransferFrom(address(this), msg.sender, marketItemId, 1, "");
     _marketItems[marketItemId].isOnSale = false;
     emit unListedItem(msg.sender, marketItemId);
   }
