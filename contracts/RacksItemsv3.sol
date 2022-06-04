@@ -398,8 +398,8 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   function buyItem(uint256 marketItemId) public {
     require(msg.sender != _marketItems[marketItemId].itemOwner, "You can not buy an item to yourself");
     require(_marketItems[marketItemId].isOnSale == true, "This item is not on sale anymore.");
-    racksToken.transferFrom(msg.sender, _marketItems[marketItemId].itemOwner, _marketItems[marketItemId].price);
     _safeTransferFrom(_marketItems[marketItemId].itemOwner, msg.sender, _marketItems[marketItemId].tokenId, 1 ,"");
+    racksToken.transferFrom(msg.sender, _marketItems[marketItemId].itemOwner, _marketItems[marketItemId].price);
     address oldOwner = _marketItems[marketItemId].itemOwner;
     _marketItems[marketItemId].itemOwner = msg.sender;
     _marketItems[marketItemId].isOnSale = false;
