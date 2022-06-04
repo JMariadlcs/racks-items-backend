@@ -605,24 +605,24 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   * - bool: false if numTries == 0
   *         true if numTries > 0
   */
-   function getTicketDurationLeft(uint256 ticketId) public view returns (uint256, bool) {
+   function getTicketDurationLeft(uint256 ticketId) public view returns (address, uint256, bool) {
     require(_tickets[ticketId].timeWhenSold > 0, "Ticket is not sold yet.");
     uint256 timeLeft;
     if ((_tickets[ticketId].numTries == 0)) {
       if((((block.timestamp - _tickets[ticketId].timeWhenSold)/60) == (_tickets[ticketId].duration * 60))) {
         timeLeft = 0;
-        return (timeLeft, false);
+        return (_tickets[ticketId].owner, timeLeft, false);
       }else {
         timeLeft = (_tickets[ticketId].duration * 60) - ((block.timestamp - _tickets[ticketId].timeWhenSold)/60);
-        return (timeLeft, false);
+        return (_tickets[ticketId].owner, timeLeft, false);
       } 
     } else {
       if((((block.timestamp - _tickets[ticketId].timeWhenSold)/60) == (_tickets[ticketId].duration * 60))) {
         timeLeft = 0;
-        return (timeLeft, true);
+        return (_tickets[ticketId].owner, timeLeft, true);
       }else {
         timeLeft = (_tickets[ticketId].duration * 60) - ((block.timestamp - _tickets[ticketId].timeWhenSold)/60);
-        return (timeLeft, true);
+        return (_tickets[ticketId].owner, timeLeft, true);
       } 
     }
   }
