@@ -35,8 +35,8 @@ contract RacksItemsv4 is IRacksItems, ERC1155, ERC1155Holder, AccessControl, VRF
     uint256 public casePrice; // Change to RacksToken
     bool public contractActive = true;
     ContractState public s_contractState;
-    itemOnSale[] _marketItems;
-    caseTicket[] _tickets;
+    itemOnSale[] public _marketItems;
+    caseTicket[] public _tickets;
 
     /// @notice VRF Variables
     VRFCoordinatorV2Interface public immutable i_vrfCoordinator; 
