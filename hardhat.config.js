@@ -7,6 +7,7 @@ require('dotenv').config();
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
+  defaultNetwork: "hardhat",
   networks: {
     hardhat: {
       chainId: 31337,
@@ -22,6 +23,9 @@ module.exports = {
     deployer: {
       default: 0,
     },
+    user_1: {
+      default: 1,
+    }
   },
   solidity: {
     version: "0.8.7",
