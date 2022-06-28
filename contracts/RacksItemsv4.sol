@@ -32,11 +32,10 @@ contract RacksItemsv4 is IRacksItems, ERC1155, ERC1155Holder, AccessControl, VRF
     uint256 private s_tokenCount;
     uint256 private _marketCount;
     uint256 private s_ticketCount;
-    uint256 public casePrice; // Change to RacksToken
-    bool public contractActive = true;
-    ContractState public s_contractState;
-    itemOnSale[] public _marketItems;
-    caseTicket[] public _tickets;
+    uint256 private casePrice; 
+    ContractState private s_contractState;
+    itemOnSale[] private _marketItems;
+    caseTicket[] private _tickets;
 
     /// @notice VRF Variables
     VRFCoordinatorV2Interface public immutable i_vrfCoordinator; 
@@ -139,13 +138,6 @@ contract RacksItemsv4 is IRacksItems, ERC1155, ERC1155Holder, AccessControl, VRF
     function setCasePrice(uint256 price) public onlyOwnerOrAdmin {
     casePrice = price;
     emit casePriceChanged(price);
-    }
-
-    /**
-    * @notice View case price
-    */
-    function getCasePrice() public view override returns(uint256) {
-    return casePrice;
     }
 
     /**
@@ -747,5 +739,45 @@ contract RacksItemsv4 is IRacksItems, ERC1155, ERC1155Holder, AccessControl, VRF
 
     /// @notice Receive function
     receive() external payable {
+    }
+
+     //////////////
+    //  Getters // 
+    //////////////
+
+    function getOwner() public view returns(address) {
+        return _owner;
+    }
+
+    function getMaxTotalSupply() public view returns(uint256) {
+        return s_maxTotalSupply;
+    }
+
+    function getTokenCount() public view returns(uint256) {
+        return s_tokenCount;
+    }
+
+    function getMarketcount() public view returns(uint256) {
+        return _marketCount;
+    }
+
+    function getTicketCount() public view returns(uint256) {
+        return s_ticketCount;
+    }
+
+    function getPriceCase() public view returns(uint256) {
+        return casePrice;
+    }
+
+    function getContractState() public view returns(ContractState) {
+        return s_contractState;
+    }
+
+   function getItemsOnSale(uint256 itemId) public view returns(itemOnSale memory) {
+        return _marketItems[itemId];
+   }
+
+    function getTicket(uint256 ticketId) public view returns(caseTicket memory) {
+        return _tickets[ticketId];
     }
 }
