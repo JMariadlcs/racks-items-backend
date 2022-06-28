@@ -42,8 +42,6 @@ interface IRacksItems {
     event ticketBought(uint256 ticketId, address oldOwner, address newOwner, uint256 price);
     event ticketClaimedBack(address borrower, address realOwner);
 
-    function getCasePrice() external view returns(uint256);
-
     function openCase() external;
 
     function caseLiquidity() external view returns(uint256[] memory);

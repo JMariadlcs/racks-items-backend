@@ -169,7 +169,10 @@ contract RacksItemsv4 is IRacksItems, ERC1155, ERC1155Holder, AccessControl, VRF
     * - Apply modular function for the randomNumber to be between 0 and totalSupply of items
     * - Should choose an item
     */
-    function openCase() public override ownsTicket supplyAvaliable contractIsActive  {  
+    function openCase() public override supplyAvaliable contractIsActive  {  
+    if (MR_CRYPTO.balanceOf(msg.sender) < 1) {
+        require(s_hasTicket[msg.sender], "User does not owns a Ticket for openning the case.");
+    }
     racksToken.transferFrom(msg.sender, address(this), casePrice);
     uint256 randomNumber = _randomNumber()  % s_maxTotalSupply;
     uint256 totalCount = 0;

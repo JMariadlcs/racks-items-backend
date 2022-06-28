@@ -14,7 +14,7 @@ module.exports = {
     },
     mumbai: {
       chainId: 80001,
-      url: process.env.STAGING_ALCHEMY_KEY,
+      url: process.env.POLYGON_MUMBAI_RPC_URL,
       accounts: [process.env.PRIVATE_KEY, process.env.PRIVATE_KEY_ACCOUNT2],
       saveDeployments: true,
     },
