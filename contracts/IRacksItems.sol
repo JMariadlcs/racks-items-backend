@@ -4,6 +4,9 @@ pragma solidity ^0.8.7;
 
 interface IRacksItems { 
 
+    /**
+    * @notice Struct for Items on the Marketplace
+    */
     struct itemOnSale{
     uint256 tokenId;
     uint256 marketItemId;
@@ -12,15 +15,20 @@ interface IRacksItems {
     bool isOnSale;
     }
 
+    /**
+    * @notice Struct for Tickets on the Marketplace
+    */
     struct caseTicket {
-    address owner;
-    address spender;
+    uint256 ticketId;
     uint256 numTries;
-    uint256 timeWhenSold;
     uint256 duration;
     uint256 price;
+    address owner;
+    uint256 timeWhenSold;
+    bool isAvaliable;
     }
 
+    /// @notice Events
     event CaseOpened(address user, uint256 casePrice, uint256 item);
     event casePriceChanged(uint256 newPrice);
     event itemExchanged(address user, uint256 tokenId);
@@ -31,9 +39,8 @@ interface IRacksItems {
     event newTicketOnSale(address seller, uint256 numTries, uint256 _hours, uint256 price);
     event unListTicketOnSale(address owner);
     event ticketConditionsChanged(address owner, uint256 newTries, uint256 newHours, uint256 newPrice);
-    event ticketBought(address oldOwner, address newOwner, uint256 price);
+    event ticketBought(uint256 ticketId, address oldOwner, address newOwner, uint256 price);
     event ticketClaimedBack(address borrower, address realOwner);
-
 
 
     function getUserTicket(address user) external view returns(uint256 durationLeft, uint256 triesLeft, uint256 ownerOrSpender , uint256 ticketPrice);

@@ -166,7 +166,9 @@ contract RacksItemsv4 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   }
 
 
-  // FUNCTIONS RELATED WITH THE CASE
+    //////////////////////
+    //  Case Functions // 
+    /////////////////////
 
   /**
   * @notice Change price of the box
@@ -245,7 +247,9 @@ contract RacksItemsv4 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   }
 
 
-  // FUNCTIONS RELATED TO ITEMS
+    //////////////////////
+    //  Item Functions // 
+    /////////////////////
 
   /**
   * @notice Returns maxSupply of specific item (by tokenId)
@@ -321,7 +325,9 @@ contract RacksItemsv4 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   }
 
 
-  // FUNCTIONS RELATED TO THE "MARKETPLACE"
+    ////////////////////////////
+    //  Marketplace Functions // 
+    ///////////////////////////
 
   /**
   * @notice Function used to sell an item on the marketplace
@@ -448,7 +454,9 @@ contract RacksItemsv4 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
     return items;
   }
 
-  // FUNCTIONS RELATED TO "TICKETS"
+    //////////////////////
+    //  Ticket Functions // 
+    /////////////////////
 
   /**
   * @notice This function is used for a VIP user to list 'Case Tickets' on the MarketPlace
@@ -650,7 +658,10 @@ contract RacksItemsv4 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   }
 
  
-  // FUNCTIONS RELATED TO "USERS"
+    //////////////////////
+    //  User Functions // 
+    /////////////////////
+
   /**
   * @notice Check if user owns at least 1 MrCrypto
   * @dev - Require users MrCrypro's balance is > 0
@@ -680,7 +691,9 @@ contract RacksItemsv4 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
     _setupRole(ADMIN_ROLE, _newAdmin);
   }
 
-  // FUNCTIONS RELATED WITH THE CONTRACT
+    ////////////////////////////
+    //  Management Functions // 
+    //////////////////////////
 
   /**
   * @notice Change contract state from Active to Inactive and viceversa
@@ -694,7 +707,9 @@ contract RacksItemsv4 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
     }
   }
 
-  // FUNCTIONS RELATED TO ERC1155 TOKENS
+   ////////////////////////////
+    //  ERC1155 Functions   // 
+    //////////////////////////
 
   /**
   * @notice Used to return token URI by inserting tokenID
@@ -718,7 +733,9 @@ contract RacksItemsv4 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
   }
 
   
-  // FUNCTIONS RELATED TO FUNDS
+    ////////////////////////
+    //  Funds Functions // 
+    //////////////////////
   
   /**
   * @notice Used to withdraw specific amount of funds
