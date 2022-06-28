@@ -5,7 +5,7 @@ pragma solidity ^0.8.7;
 import "@openzeppelin/contracts/access/AccessControl.sol"; // define roles
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; // erc1155 tokens
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol"; // contract should be ERC1155 holder to receive ERC1155 tokens
-import "@openzeppelin/contracts/token/ERC721/IERC721Enumerable.sol"; // to instanciate MrCrypto object
+import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol"; // to instanciate MrCrypto object
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol"; // to work with RacksToken
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol"; // to work with COORDINATOR and VRF
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol"; // to use functionalities for Chainlink VRF
@@ -147,7 +147,7 @@ contract RacksItemsv3 is ERC1155, ERC1155Holder, AccessControl, VRFConsumerBaseV
     /**
     * Initialization of RacksItem contract variables
     */
-    MR_CRYPTO = IERC721(_MockMrCryptoAddress);
+    MR_CRYPTO = IERC721Enumerable(_MockMrCryptoAddress);
     racksToken = IERC20(_racksTokenAddress);
     _owner = msg.sender;
     s_tokenCount = 0;

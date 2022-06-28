@@ -2,85 +2,72 @@
 
 pragma solidity ^0.8.7;
 
-interface IRacksItems {
-    struct itemOnSale {
-        uint256 tokenId;
-        uint256 price;
-        address payable seller;
-        bool isRacksTrack;
-        bool sold;
+interface IRacksItems { 
+
+    struct itemOnSale{
+    uint256 tokenId;
+    uint256 marketItemId;
+    uint256 price;
+    address itemOwner;
+    bool isOnSale;
     }
 
-    /**
-     * @notice Enum for Contract state -> to let user enter call some functions or not
-     */
+    struct caseTicket {
+    address owner;
+    address spender;
+    uint256 numTries;
+    uint256 timeWhenSold;
+    uint256 duration;
+    uint256 price;
+    }
 
-    /// @notice Events
     event CaseOpened(address user, uint256 casePrice, uint256 item);
+    event casePriceChanged(uint256 newPrice);
     event itemExchanged(address user, uint256 tokenId);
     event sellingItem(address user, uint256 tokenId, uint256 price);
-    event itemBought(
-        address buyer,
-        address seller,
-        uint256 marketItemId,
-        uint256 price
-    );
+    event itemBought(address buyer, address seller, uint256 marketItemId, uint256 price);
+    event unListedItem(address owner, uint256 marketItemId);
+    event itemPriceChanged(address owner, uint256 marketItemId, uint256 oldPrice, uint256 newPrice);
+    event newTicketOnSale(address seller, uint256 numTries, uint256 _hours, uint256 price);
+    event unListTicketOnSale(address owner);
+    event ticketConditionsChanged(address owner, uint256 newTries, uint256 newHours, uint256 newPrice);
+    event ticketBought(address oldOwner, address newOwner, uint256 price);
+    event ticketClaimedBack(address borrower, address realOwner);
 
-    /// @notice Modifiers
-    /// @notice Check that person calling a function is the owner of the Contract
 
-    /**
-     * @notice Need to override supportsInterface function because Contract is ERC1155 and AccessControl
-     */
 
-    /**
-     * @notice Function used to 'open a case' and get an item
-     * @dev
-     * - Internally calls randomNumber()
-     * - Should choose an item
-     * - Should check if the item is RacksTrack (special NFT)
-     *   - If it is a RacksTrack -> mint ERC721 to users wallet
-     */
-    function openCase() external payable returns (uint256);
+    function getUserTicket(address user) external view returns(uint256 durationLeft, uint256 triesLeft, uint256 ownerOrSpender , uint256 ticketPrice);
 
-    function sellItem(uint256 tokenId, uint256 price) external;
+    function openCase() external;
 
-    function buyItem(uint256 marketItemId) external payable;
+    function supplyOfItem(uint256 tokenId) external view returns(uint);
 
-    function getItemsOnSale() external view returns (itemOnSale[] memory);
+    function viewItems(address owner) external view returns(uint256[] memory);
 
-    // FUNCTIONS RELATED TO ITEMS
+    function listItemOnMarket(uint256 marketItemId, uint256 price) external;
 
-    /**
-     * @notice Returns maxSupply of specific item (by tokenId)
-     * @dev - Getter of s_maxSupply mapping
-     */
-    function supplyOfItem(uint256 tokenId) external view returns (uint256);
+    function changeMarketItem(uint256 marketItemId,  uint256 newPrice) external;
 
-    /**
-     * @notice Calculate chance of receiving an specific item
-     * @dev - Requires that tokenId exists (item is listed)
-     * - chance is calculated as item supply divided by total items supply
-     */
-    function chanceOfItem(uint256 tokenId)
-        external
-        view
-        virtual
-        returns (uint256);
+    function exchangeItem(uint256 tokenId) external;
 
-    /**
-     * @notice Returns all the items inside the user's inventory (Could be used by the
-     * user to check his inventory or to check someone else inventory by address)
-     * @dev Copy users inventory in an empty array and returns it
-     */
-    function viewItems(address owner) external view returns (uint256[] memory);
+    function buyItem(uint256 marketItemId) external;
 
-    // FUNCTIONS RELATED TO "USERS"
+    function getMarketItem(uint marketItemId) external view returns(itemOnSale memory);
 
-    /**
-     * @notice Check if user is RacksMembers and owns at least 1 MrCrypto
-     * @dev - Require users MrCrypro's balance is > '
-     * - Require that RacksMembers user's attribute is true
-     */
-        function isVip(address user) external view returns (bool);
+    function getItemsOnSale() external view returns(itemOnSale[] memory);
+
+    function listTicket(uint256 numTries, uint256 _hours, uint256 price) external;
+
+    function changeMarketTicket(uint256 newTries, uint256 newHours, uint256 newPrice) external;
+
+    function buyTicket(address owner) external;
+
+    function claimTicketBack() external;
+    function getTicketsOnSale() external view returns(caseTicket[] memory);
+
+    function isVIP(address user) external view returns(bool) ;
+
+    function VIPList() external view returns(address [] memory);
+
+    function uri(uint256 tokenId) external view returns (string memory);
 }
