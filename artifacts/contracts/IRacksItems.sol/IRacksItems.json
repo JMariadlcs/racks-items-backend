@@ -183,6 +183,12 @@
       "inputs": [
         {
           "indexed": false,
+          "internalType": "uint256",
+          "name": "ticketId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
           "internalType": "address",
           "name": "oldOwner",
           "type": "address"
@@ -286,13 +292,19 @@
       "type": "event"
     },
     {
-      "inputs": [],
-      "name": "VIPList",
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "_rarityOfItem",
       "outputs": [
         {
-          "internalType": "address[]",
+          "internalType": "uint256",
           "name": "",
-          "type": "address[]"
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -314,14 +326,27 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
+          "internalType": "uint256",
+          "name": "ticketId",
+          "type": "uint256"
         }
       ],
       "name": "buyTicket",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "caseLiquidity",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -337,13 +362,18 @@
           "type": "uint256"
         }
       ],
-      "name": "changeMarketItem",
+      "name": "changeItemPrice",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "ticketId",
+          "type": "uint256"
+        },
         {
           "internalType": "uint256",
           "name": "newTries",
@@ -360,13 +390,19 @@
           "type": "uint256"
         }
       ],
-      "name": "changeMarketTicket",
+      "name": "changeTicketConditions",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
-      "inputs": [],
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "ticketId",
+          "type": "uint256"
+        }
+      ],
       "name": "claimTicketBack",
       "outputs": [],
       "stateMutability": "nonpayable",
@@ -383,6 +419,69 @@
       "name": "exchangeItem",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getCasePrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getITicketsOnSale",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "ticketId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "numTries",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "duration",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timeWhenSold",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isAvaliable",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct IRacksItems.caseTicket[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -472,29 +571,25 @@
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "getTicketsOnSale",
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "ticketId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getMarketTicket",
       "outputs": [
         {
           "components": [
             {
-              "internalType": "address",
-              "name": "owner",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "spender",
-              "type": "address"
-            },
-            {
               "internalType": "uint256",
-              "name": "numTries",
+              "name": "ticketId",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "timeWhenSold",
+              "name": "numTries",
               "type": "uint256"
             },
             {
@@ -506,11 +601,26 @@
               "internalType": "uint256",
               "name": "price",
               "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timeWhenSold",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isAvaliable",
+              "type": "bool"
             }
           ],
-          "internalType": "struct IRacksItems.caseTicket[]",
+          "internalType": "struct IRacksItems.caseTicket",
           "name": "",
-          "type": "tuple[]"
+          "type": "tuple"
         }
       ],
       "stateMutability": "view",
@@ -519,32 +629,27 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "user",
-          "type": "address"
+          "internalType": "uint256",
+          "name": "ticketId",
+          "type": "uint256"
         }
       ],
-      "name": "getUserTicket",
+      "name": "getTicketDurationLeft",
       "outputs": [
         {
-          "internalType": "uint256",
-          "name": "durationLeft",
-          "type": "uint256"
+          "internalType": "address",
+          "name": "",
+          "type": "address"
         },
         {
           "internalType": "uint256",
-          "name": "triesLeft",
+          "name": "",
           "type": "uint256"
         },
         {
-          "internalType": "uint256",
-          "name": "ownerOrSpender",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "ticketPrice",
-          "type": "uint256"
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
         }
       ],
       "stateMutability": "view",
@@ -558,7 +663,7 @@
           "type": "address"
         }
       ],
-      "name": "isVIP",
+      "name": "isVip",
       "outputs": [
         {
           "internalType": "bool",
@@ -620,6 +725,37 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "_newAdmin",
+          "type": "address"
+        }
+      ],
+      "name": "setAdmin",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "_uri",
+          "type": "string"
+        }
+      ],
+      "name": "setTokenUri",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint256",
           "name": "tokenId",
           "type": "uint256"
@@ -640,19 +776,26 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "tokenId",
+          "name": "marketItemId",
           "type": "uint256"
         }
       ],
-      "name": "uri",
-      "outputs": [
+      "name": "unListItem",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
         {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
+          "internalType": "uint256",
+          "name": "ticketId",
+          "type": "uint256"
         }
       ],
-      "stateMutability": "view",
+      "name": "unListTicket",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -672,6 +815,37 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wallet",
+          "type": "address"
+        }
+      ],
+      "name": "withdrawAllFunds",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wallet",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawFunds",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ],

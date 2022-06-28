@@ -42,18 +42,23 @@ interface IRacksItems {
     event ticketBought(uint256 ticketId, address oldOwner, address newOwner, uint256 price);
     event ticketClaimedBack(address borrower, address realOwner);
 
-
-    function getUserTicket(address user) external view returns(uint256 durationLeft, uint256 triesLeft, uint256 ownerOrSpender , uint256 ticketPrice);
+    function getCasePrice() external view returns(uint256);
 
     function openCase() external;
 
+    function caseLiquidity() external view returns(uint256[] memory);
+
     function supplyOfItem(uint256 tokenId) external view returns(uint);
+
+    function _rarityOfItem(uint256 tokenId) external view returns(uint256);
 
     function viewItems(address owner) external view returns(uint256[] memory);
 
     function listItemOnMarket(uint256 marketItemId, uint256 price) external;
 
-    function changeMarketItem(uint256 marketItemId,  uint256 newPrice) external;
+    function unListItem(uint256 marketItemId) external;
+
+    function changeItemPrice(uint256 marketItemId, uint256 newPrice) external;
 
     function exchangeItem(uint256 tokenId) external;
 
@@ -65,16 +70,27 @@ interface IRacksItems {
 
     function listTicket(uint256 numTries, uint256 _hours, uint256 price) external;
 
-    function changeMarketTicket(uint256 newTries, uint256 newHours, uint256 newPrice) external;
+    function unListTicket(uint256 ticketId) external;
 
-    function buyTicket(address owner) external;
+    function changeTicketConditions(uint256 ticketId, uint256 newTries, uint256 newHours, uint256 newPrice) external;
 
-    function claimTicketBack() external;
-    function getTicketsOnSale() external view returns(caseTicket[] memory);
+    function buyTicket(uint256 ticketId) external;
 
-    function isVIP(address user) external view returns(bool) ;
+    function claimTicketBack(uint256 ticketId) external;
 
-    function VIPList() external view returns(address [] memory);
+    function getMarketTicket(uint256 ticketId) external view returns(caseTicket memory);
 
-    function uri(uint256 tokenId) external view returns (string memory);
+    function getITicketsOnSale() external view returns(caseTicket[] memory);
+
+    function getTicketDurationLeft(uint256 ticketId) external view returns (address, uint256, bool);
+
+    function isVip(address user) external view returns(bool);
+
+    function setAdmin(address _newAdmin) external;
+
+    function setTokenUri(uint256 tokenId, string memory _uri) external;
+
+    function withdrawFunds(address wallet, uint256 amount) external;
+
+    function withdrawAllFunds(address wallet) external; 
 }
