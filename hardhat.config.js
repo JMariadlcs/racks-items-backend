@@ -1,5 +1,6 @@
 require("@nomiclabs/hardhat-waffle");
 require("hardhat-deploy");
+require('hardhat-contract-sizer');
 require('dotenv').config();
 
 /**
@@ -8,7 +9,7 @@ require('dotenv').config();
 module.exports = {
   networks: {
     hardhat: {
-      chainId: 31337
+      chainId: 31337,
     },
     mumbai: {
       chainId: 80001,
