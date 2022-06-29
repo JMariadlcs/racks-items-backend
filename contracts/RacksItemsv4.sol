@@ -601,7 +601,8 @@ contract RacksItemsv4 is IRacksItems, ERC1155, ERC1155Holder, AccessControl, VRF
 
     /**
     * @notice Function used to view how much time is left for lended Ticket
-    * @dev This function returns 2 parameters
+    * @dev This function returns 3 parameters
+    * - address: ticketOwner
     * - uint256: timeLeft 
     * - bool: false if numTries == 0
     *         true if numTries > 0
