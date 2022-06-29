@@ -175,27 +175,19 @@ contract RacksItemsv4 is IRacksItems, ERC1155, ERC1155Holder, AccessControl, VRF
     }
     racksToken.transferFrom(msg.sender, address(this), casePrice);
     uint256 randomNumber = _randomNumber()  % s_maxTotalSupply;
+    uint256 [] memory itemList = caseLiquidity();
     uint256 totalCount = 0;
     uint256 item;
 
-    for(uint256 i = 0 ; i < s_tokenCount; i++) {
-        uint256 _newTotalCount = totalCount + s_maxSupply[i] ;
-        if(randomNumber > _newTotalCount) {
+    for(uint256 i = 0 ; i < itemList.length; i++) {
+      uint256 _newTotalCount = totalCount + s_maxSupply[itemList[i]] ;
+      if(randomNumber > _newTotalCount) {
         totalCount = _newTotalCount;
-        }else {
-        item = i;
-        if(balanceOf(address(this),item)==0){
-            for(uint256 j = item-1; j >= 0; j--){
-            if (balanceOf(address(this),j)>0){
-                item = j;
-                break;
-            }
-            }
-        }
+      }else {
+        item = itemList[i];
         _safeTransferFrom(address(this), msg.sender, item , 1,"");
-        s_maxTotalSupply--;
         break;
-        }
+      }
     }
     if (!isVip(msg.sender)){ // Case opener is someone that bought a ticket
     decreaseTicketTries(msg.sender);
