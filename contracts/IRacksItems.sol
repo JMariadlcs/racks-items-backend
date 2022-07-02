@@ -82,6 +82,8 @@ interface IRacksItems {
 
     function getTicketDurationLeft(uint256 ticketId) external view returns (address, uint256, bool);
 
+    function getUserTicket(address user) external view returns(uint256 durationLeft, uint256 triesLeft, address ownerOrSpender, uint256 ticketPrice);
+
     function isVip(address user) external view returns(bool);
 
     function setAdmin(address _newAdmin) external;

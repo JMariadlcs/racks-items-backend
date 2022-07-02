@@ -631,89 +631,14 @@ contract RacksItemsv4 is IRacksItems, ERC1155, ERC1155Holder, AccessControl, VRF
     }
     }
 
-    /**
-    * @notice Returns tries left of a ticket
-    * If the user isn't spending a ticket returns 0
-    * If the time is over returns 0
-    */
-    function _triesLeft(address user) internal view returns (uint256){
-        uint256 triesLeft=0;
-        if(_ticketOwnership(user)==2 || _ticketOwnership(user)==3 || _ticketOwnership(user)==4){
-        for(uint256 i=0; i<s_racksMembers.length; i++){
-            
-        if(_tickets[s_racksMembers[i]].owner == user || _tickets[s_racksMembers[i]].spender == user){
-            uint256 duration = _tickets[s_racksMembers[i]].duration * 1 hours;
-            bool over = block.timestamp >  _tickets[s_racksMembers[i]].timeWhenSold + duration ? true : false;
-            if(!over){
-            triesLeft =  _tickets[s_racksMembers[i]].numTries;
-            }
-        break;
-            }
-        }
-        }
-        return triesLeft;
-    }
-
-    /**
-    *@notice Checks if someone is owning, selling, borrowing or lending a ticket, returns 0 else
-    */
-    function _ticketOwnership(address user) internal view returns(uint256){//1 for owner, 2 for borrower, 3 for lending, 4 for seller, 0 else
-     uint256 ownerOrSpender=0;
-     for(uint256 i=0; i<s_racksMembers.length; i++){
-       if(s_caseTickets[s_racksMembers[i]].owner==user && s_caseTickets[s_racksMembers[i]].spender==user && isVIP(user)){
-         ownerOrSpender=1; 
-        break;
-       }
-       else if(s_caseTickets[s_racksMembers[i]].owner!=user &&  s_caseTickets[s_racksMembers[i]].spender==user ){
-         ownerOrSpender=2;
-         break;
-       }else if(s_caseTickets[s_racksMembers[i]].owner==user && s_caseTickets[s_racksMembers[i]].spender!=address(this) && s_caseTickets[s_racksMembers[i]].spender!=user){
-         ownerOrSpender=3;
-         break;
-       }else if(s_caseTickets[s_racksMembers[i]].owner==user && s_caseTickets[s_racksMembers[i]].spender==address(this)){
-         ownerOrSpender=4;
-         break;
-       }
-
-     }
-      return ownerOrSpender;
-  }
-
-    /**
-    *@notice Returns duration left of a ticket
-    *If the user isn't spending a ticket then returns 0
-    *If ticket's use time is over returns 0
-    */
-    function _durationLeft(address user) internal view returns(uint256){
-        uint256 durationLeft=0;
-    if(_ticketOwnership(user)==2 || _ticketOwnership(user)==3 || _ticketOwnership(user)==4){
-        for(uint256 i=0; i< s_racksMembers.length; i++){
-
-        if(s_caseTickets[s_racksMembers[i]].owner == user || s_caseTickets[s_racksMembers[i]].spender == user){
-
-            uint256 duration = s_caseTickets[s_racksMembers[i]].duration * 1 hours;
-            bool over = block.timestamp >  s_caseTickets[s_racksMembers[i]].timeWhenSold + duration ? true : false;
-
-            if(!over){
-            durationLeft = duration-((block.timestamp -  s_caseTickets[s_racksMembers[i]].timeWhenSold))/1 hours; //return hurs left multiplied by 1000 so we can reach decimals
-            }
-            break;
-
-        }
-
-
-        }
-        }
-        return durationLeft;
-    }
 
     /**
     *@notice  Returns an address tickets data(time, tries and onwership)
     */
-    function getUserTicket(address user) public override view returns(uint256 durationLeft, uint256 triesLeft, uint256 ownerOrSpender, uint256 ticketPrice){
-    uint256 ticketPrice;
-    ticketPrice = _ticketOwnership(user)==4? s_caseTickets[user].price : 0;
-    return (_durationLeft(user), _triesLeft(user), _ticketOwnership(user), ticketPrice);
+    function getUserTicket(address user) public view override returns(uint256 durationLeft, uint256 triesLeft, address ownerOrSpender, uint256 ticketPrice) {
+    uint256 ticketId = s_lastTicket[user];
+    (,uint256 timeLeft,) = getTicketDurationLeft(ticketId);
+    return (timeLeft, _tickets[ticketId].numTries, _tickets[ticketId].owner, _tickets[ticketId].price);
     }
 
 
