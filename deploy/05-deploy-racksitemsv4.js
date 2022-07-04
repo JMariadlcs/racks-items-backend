@@ -4,6 +4,7 @@
 
 const { ethers } = require("hardhat");
 const { get } = require("http");
+const { networkConfig, developmentChains } = require("../helper-hardhat-config")
 
 // Parameters for VRFCoordinator
 const VRF_CoordinatorAddress = "0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed";
