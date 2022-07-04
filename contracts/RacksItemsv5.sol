@@ -797,7 +797,7 @@ contract RacksItemsv5 is IRacksItemsv5, ERC1155, ERC1155Holder, AccessControl, V
         return s_contractState;
     }
 
-   function getItemsOnSale(uint256 itemId) public view returns(itemOnSale memory) {
+   function getItemOnSale(uint256 itemId) public view returns(itemOnSale memory) {
         return _marketItems[itemId];
    }
 
