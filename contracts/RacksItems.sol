@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol"; 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol"; 
 
-contract RacksItemsv3 is IRacksItems, ERC1155, ERC1155Holder, AccessControl{ 
+contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{ 
    
     /**
     * @notice Enum for Contract state -> to let user enter call some functions or not
@@ -37,14 +37,10 @@ contract RacksItemsv3 is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     ContractState private s_contractState;
     itemOnSale[] private _marketItems;
 
-
-
-
     /// @notice Mappings
     mapping(uint => uint) private s_maxSupply;
     mapping (uint256 => string) private s_uris; 
     mapping (address => mapping(uint256=> uint256)) s_marketInventory;
-
 
     /// @notice Modifiers
     /// @notice Check that person calling a function is the owner of the Contract
@@ -78,9 +74,7 @@ contract RacksItemsv3 is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     _;
     }
 
-    constructor(address _racksTokenAddress, address _MockMrCryptoAddress) 
-    ERC1155(""){
-        
+    constructor(address _racksTokenAddress, address _MockMrCryptoAddress) ERC1155("") {
     /**
     * Initialization of RacksItem contract variables
     */
@@ -90,7 +84,6 @@ contract RacksItemsv3 is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     s_tokenCount = 0;
     casePrice = 100;
     s_contractState = ContractState.Active;
-    
     }
 
     /** 
@@ -113,8 +106,6 @@ contract RacksItemsv3 is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
         casePrice = price;
         emit casePriceChanged(price);
     }
-
-   
 
     /**
     * @notice Function used to 'open a case' and get an item
@@ -145,25 +136,23 @@ contract RacksItemsv3 is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     /**
     * @notice Returns all the items the case can drop
     */
-    function caseLiquidity() public view override returns(uint256[] memory){
-        uint256 arrayLength;
-        for(uint256 i=0; i< s_tokenCount; i++){
-            if(balanceOf(address(this), i)>0 ){
-            arrayLength++;
-            }
+    function caseLiquidity() public view override returns(uint256[] memory) {
+    uint256 arrayLength;
+    for(uint256 i=0; i< s_tokenCount; i++){
+        if(balanceOf(address(this), i)>0 ){
+        arrayLength++;
         }
-        uint256 [] memory items = new uint256[](arrayLength);
-        uint256 indexCount;
-        for(uint256 j=0; j< s_tokenCount; j++){
-            if(balanceOf(address(this), j)>0 ){
-            items[indexCount]=j;
-            indexCount++;
-
-            }
+    }
+    uint256 [] memory items = new uint256[](arrayLength);
+    uint256 indexCount;
+    for(uint256 j=0; j< s_tokenCount; j++){
+        if(balanceOf(address(this), j)>0 ){
+        items[indexCount]=j;
+        indexCount++;
         }
+    }
     return items;
     }
-
 
     //////////////////////
     //  Item Functions // 
@@ -313,7 +302,6 @@ contract RacksItemsv3 is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     * - Emit event 
     */
     function buyItem(uint256 marketItemId) public override {
-
         itemOnSale memory item = _marketItems[marketItemId];
         require(msg.sender != _marketItems[marketItemId].itemOwner, "You can not buy an item to yourself");
         require(_marketItems[marketItemId].isOnSale == true, "This item is not on sale anymore.");
@@ -326,17 +314,13 @@ contract RacksItemsv3 is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
         _marketItems[marketItemId].itemOwner = msg.sender;
         _marketItems[marketItemId].isOnSale = false;
         emit itemBought(msg.sender, oldOwner, marketItemId, _marketItems[marketItemId].price);
-
     }
-
-  
 
     /**
     * @notice function used to return every item that is on sale on the MarketPlace
     */
     function getItemsOnSale() public view override returns(itemOnSale[] memory) {
         uint arrayLength;
-
         for(uint i=0; i<_marketItems.length;i++){
             itemOnSale memory item = _marketItems[i];
             if(item.isOnSale == true && _itemStillAvailable(item.itemOwner, item.tokenId)){
@@ -426,8 +410,6 @@ contract RacksItemsv3 is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
         TICKETS.claimTicketBack(msg.sender);
         emit ticketClaimedBack( msg.sender);
     }
-
-   
 
     /**
     * @notice Function used to return ticket that are currently on sale
@@ -580,15 +562,12 @@ contract RacksItemsv3 is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
         racksToken.transfer(wallet, racksToken.balanceOf(address(this)));
     }
 
-
     function setInterfaces(address _caseOpenerAddress, address _ticketsAddress) public onlyOwner{
         CASE_OPENER  = ICaseOpener(_caseOpenerAddress);
         TICKETS = ITickets(_ticketsAddress);
-
     }
 
-  
-     //////////////
+    //////////////
     //  Getters // 
     //////////////
 
@@ -616,6 +595,4 @@ contract RacksItemsv3 is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     function getCasePrice() public view returns(uint){
         return casePrice;
     }
-
-
 }
