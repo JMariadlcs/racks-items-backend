@@ -9,8 +9,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  */
 contract MockMrCryptoToken is ERC721("MrCrypto NFT", "MrC"), Ownable {
     
+    uint256 tokenCounter;
+
     // implement the mint function
     function mint(address _to, uint256 tokenId) public onlyOwner{ 
-        _mint(_to, tokenId);                
+        tokenCounter++;
+        _mint(_to, tokenCounter);                
     }
 }

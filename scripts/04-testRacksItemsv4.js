@@ -1,6 +1,6 @@
 /* This Script is used to deploy RacksItems.sol contract into a TESTNET
      Deploy: 'yarn hardhat deploy --network mumbai'
-    or 'yarn hardhat run scripts/02-testRacksItemsv4 --network mumbai' */
+    or 'yarn hardhat run scripts/04-testRacksItemsv4 --network mumbai' */
 
 const { ethers } = require("hardhat");
 

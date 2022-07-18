@@ -1,6 +1,6 @@
 /* This Script is used to deploy RacksItems.sol contract into a TESTNET
      Deploy: 'yarn hardhat deploy --network mumbai'
-    or 'yarn hardhat runs scripts/testRacksItemsv4_ticketsPart --network mumbai' */
+    or 'yarn hardhat runs scripts/05-testRacksItemsv4_ticketsPart --network mumbai' */
 
 // This Script is used to test the Ticket functionality
 
