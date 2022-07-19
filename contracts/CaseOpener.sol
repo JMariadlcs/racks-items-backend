@@ -45,7 +45,8 @@ contract caseItem is ICaseOpener , VRFConsumerBaseV2{
       caseSupply+=RacksItems.supplyOfItem(itemList[i]);
     }
 
-    uint256 randomNumber = _randomNumber()  % caseSupply;
+    _randomNumber();
+    uint256 randomNumber = s_randomWord  % caseSupply;
     uint256 totalCount = 0;
     uint256 item;
 
