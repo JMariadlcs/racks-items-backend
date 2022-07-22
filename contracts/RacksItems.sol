@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol"; 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol"; 
 
-contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{ 
+contract RacksItemsv3 is IRacksItems, ERC1155, ERC1155Holder, AccessControl{ 
    
     /**
     * @notice Enum for Contract state -> to let user enter call some functions or not
@@ -20,12 +20,11 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     Active,
     Inactive
     }
-
     /// @notice Interfaces
     ICaseOpener CASE_OPENER;
     ITickets TICKETS;
 
-    /// @notice Tokens
+    /// @notice tokens
     IERC721Enumerable MR_CRYPTO;
     IERC20 racksToken;
 
@@ -38,12 +37,15 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     uint256 private casePrice; 
     ContractState private s_contractState;
     itemOnSale[] private _marketItems;
-    bytes [] public s_caseResults;
+
+    bytes [] public s_caseResults;//all the results of all the cases ever opened
+
 
     /// @notice Mappings
     mapping(uint => uint) private s_maxSupply;
     mapping (uint256 => string) private s_uris; 
     mapping (address => mapping(uint256=> uint256)) s_marketInventory;
+
 
     /// @notice Modifiers
     /// @notice Check that person calling a function is the owner of the Contract
@@ -77,7 +79,9 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     _;
     }
 
-    constructor(address _racksTokenAddress, address _MockMrCryptoAddress) ERC1155("") {
+    constructor(address _racksTokenAddress, address _MockMrCryptoAddress) 
+    ERC1155(""){
+        
     /**
     * Initialization of RacksItem contract variables
     */
@@ -87,13 +91,14 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     s_tokenCount = 0;
     casePrice = 100;
     s_contractState = ContractState.Active;
+    
     }
 
     /** 
     * @notice Need to override supportsInterface function because Contract is ERC1155 and AccessControl
     */
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, ERC1155Receiver, AccessControl) returns (bool) {
-    return super.supportsInterface(interfaceId);
+        return super.supportsInterface(interfaceId);
     }
 
 
@@ -110,6 +115,8 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
         emit casePriceChanged(price);
     }
 
+   
+
     /**
     * @notice Function used to 'open a case' and get an item
     * @dev 
@@ -117,21 +124,21 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     * - Should transfer case price to the contract
     * - Internally calls the case opener contract to get a random number from Chainlink VRF 
     */
-    function openCase() public override supplyAvaliable contractIsActive returns(bool success) {  
-    if (MR_CRYPTO.balanceOf(msg.sender) < 1) {
-        (,,uint256 ownerOrSpender,)= TICKETS.getUserTicket(msg.sender);
-        require(ownerOrSpender==2, "User does not own a Ticket for openning the case.");
-    }
+    function openCase() public override supplyAvaliable contractIsActive returns(bool success){  
+        if (MR_CRYPTO.balanceOf(msg.sender) < 1) {
+            (,,uint ownerOrSpender,)= TICKETS.getUserTicket(msg.sender);
+            require(ownerOrSpender==2, "User does not own a Ticket for openning the case.");
+        }
 
-    racksToken.transferFrom(msg.sender, address(this), casePrice);
-    CASE_OPENER._generate(msg.sender);
+        racksToken.transferFrom(msg.sender , address(this), casePrice);
+        CASE_OPENER._generate(msg.sender);
 
-    if (!isVip(msg.sender)){ // Case opener is someone that bought a ticket
-        TICKETS.decreaseTicketTries(msg.sender);
+        if (!isVip(msg.sender)){ // Case opener is someone that bought a ticket
+            TICKETS.decreaseTicketTries(msg.sender);
+        }
+       
+        return true;
     }
-    return true;
-    }
-
     /**
     * @notice This function is called back by the Chainlink Oracle after requesting a random number
     * The function receives a random number and the user that originally opened the case
@@ -139,53 +146,56 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     * Algorithmically pick an item based on the random number and statistics of its item
     */
 
-    function fulfillCaseRequest(address _user, uint _randomNumber) external override {
-    require(msg.sender == address (CASE_OPENER));
+    function fulfillCaseRequest(address _user, uint _randomNumber) external override{
+        require(msg.sender == address (CASE_OPENER));
 
-    uint256 caseSupply;
-    uint256 [] memory itemList = caseLiquidity();
-    for(uint256 i =0 ;i<itemList.length; i++){
-        caseSupply+=supplyOfItem(itemList[i]);
-    }
-    uint256 randomNumber = _randomNumber % caseSupply;
-    uint256 totalCount = 0;
-    uint256 item;
+        uint caseSupply;
+        uint256 [] memory itemList = caseLiquidity();
+        for(uint i =0 ;i<itemList.length; i++){
+          caseSupply+=supplyOfItem(itemList[i]);
+        }
+        uint randomNumber = _randomNumber % caseSupply;
+        uint256 totalCount = 0;
+        uint256 item;
 
-    for(uint256 i = 0 ; i < itemList.length; i++) {
-        uint256 _newTotalCount = totalCount + supplyOfItem(itemList[i]) ;
-        if (randomNumber > _newTotalCount) {
+        for(uint256 i = 0 ; i < itemList.length; i++) {
+          uint256 _newTotalCount = totalCount + supplyOfItem(itemList[i]) ;
+          if(randomNumber > _newTotalCount) {
             totalCount = _newTotalCount;
-        } else {
+          }else {
             item = itemList[i];
             break;
+          }
         }
-    }
-    s_caseResults.push(abi.encodePacked(_user, item));
-    _safeTransferFrom(address(this), _user ,  item , 1,"");
-    emit CaseOpened(msg.sender, casePrice, item);
-    }
+         s_caseResults.push (
+             abi.encodePacked(_user, item)
+        );
+        _safeTransferFrom(address(this), _user ,  item , 1,"");
+        emit CaseOpened(msg.sender, casePrice, item);
 
-
+    }
     /**
     * @notice Returns all the items the case can drop
     */
-    function caseLiquidity() public view override returns(uint256[] memory) {
-    uint256 arrayLength;
-    for(uint256 i=0; i< s_tokenCount; i++){
-        if(balanceOf(address(this), i)>0 ){
-        arrayLength++;
+    function caseLiquidity() public view override returns(uint256[] memory){
+        uint256 arrayLength;
+        for(uint256 i=0; i< s_tokenCount; i++){
+            if(balanceOf(address(this), i)>0 ){
+            arrayLength++;
+            }
         }
-    }
-    uint256 [] memory items = new uint256[](arrayLength);
-    uint256 indexCount;
-    for(uint256 j=0; j< s_tokenCount; j++){
-        if(balanceOf(address(this), j)>0 ){
-        items[indexCount]=j;
-        indexCount++;
+        uint256 [] memory items = new uint256[](arrayLength);
+        uint256 indexCount;
+        for(uint256 j=0; j< s_tokenCount; j++){
+            if(balanceOf(address(this), j)>0 ){
+            items[indexCount]=j;
+            indexCount++;
+
+            }
         }
-    }
     return items;
     }
+
 
     //////////////////////
     //  Item Functions // 
@@ -268,20 +278,20 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     * - Emit event 
     */
     function listItemOnMarket(uint256 marketItemId, uint256 price) public override {
-    require(balanceOf(msg.sender, marketItemId) > 0, "Item not found.");
-    require(price > 0, "Price must be greater than 0");
-    s_marketInventory[msg.sender][marketItemId] += 1;
-    _marketItems.push(
-        itemOnSale(
-        marketItemId,
-        _marketCount,
-        price,
-        msg.sender,
-        true
-        )
-    );
-    _marketCount++;
-    emit sellingItem(msg.sender, marketItemId, price);
+        require(balanceOf(msg.sender, marketItemId) > 0, "Item not found.");
+        require(price > 0, "Price must be greater than 0");
+        s_marketInventory[msg.sender][marketItemId] += 1;
+        _marketItems.push(
+            itemOnSale(
+            marketItemId,
+            _marketCount,
+            price,
+            msg.sender,
+            true
+            )
+        );
+        _marketCount++;
+        emit sellingItem(msg.sender, marketItemId, price);
     }
 
     /**
@@ -335,6 +345,7 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     * - Emit event 
     */
     function buyItem(uint256 marketItemId) public override {
+
         itemOnSale memory item = _marketItems[marketItemId];
         require(msg.sender != _marketItems[marketItemId].itemOwner, "You can not buy an item to yourself");
         require(_marketItems[marketItemId].isOnSale == true, "This item is not on sale anymore.");
@@ -347,13 +358,17 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
         _marketItems[marketItemId].itemOwner = msg.sender;
         _marketItems[marketItemId].isOnSale = false;
         emit itemBought(msg.sender, oldOwner, marketItemId, _marketItems[marketItemId].price);
+
     }
+
+  
 
     /**
     * @notice function used to return every item that is on sale on the MarketPlace
     */
     function getItemsOnSale() public view override returns(itemOnSale[] memory) {
         uint arrayLength;
+
         for(uint i=0; i<_marketItems.length;i++){
             itemOnSale memory item = _marketItems[i];
             if(item.isOnSale == true && _itemStillAvailable(item.itemOwner, item.tokenId)){
@@ -389,9 +404,9 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     * - Emit event
     *
     */
-    function listTicket(address from, uint256 numTries, uint256 _hours, uint256 price) public override onlyVIP contractIsActive  {
-        TICKETS.listTicket(from, numTries, _hours , price, msg.sender);
-        emit newTicketOnSale(msg.sender, numTries, _hours, price);
+    function listTicketFrom(address from, uint256 numTries, uint256 _hours, uint256 price) public override onlyVIP contractIsActive  {
+        TICKETS.listTicket(from,numTries, _hours , price, msg.sender);
+        emit newTicketOnSale(from, numTries, _hours, price);
     }
 
     /**
@@ -400,9 +415,9 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     * - Should check that user has a listed ticket
     * - Emit event
     */
-    function unListTicket(address from) public override onlyVIP contractIsActive  {
+    function unListTicketFrom(address from) public override onlyVIP contractIsActive  {
         TICKETS.unListTicket(from, msg.sender);
-        emit unListTicketOnSale(msg.sender);
+        emit unListTicketOnSale(from);
     }
 
     /**
@@ -411,9 +426,9 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     * - Should check that user has a listed ticket
     * - Emit event
     */
-    function changeTicketConditions(address from, uint256 newTries, uint256 newHours, uint256 newPrice) public override onlyVIP contractIsActive {
+    function changeTicketConditionsFrom(address from, uint256 newTries, uint256 newHours, uint256 newPrice) public override onlyVIP contractIsActive {
         TICKETS.changeTicketConditions(from, newTries,  newHours,  newPrice, msg.sender);
-        emit ticketConditionsChanged(msg.sender, newTries, newHours, newPrice);
+        emit ticketConditionsChanged(from, newTries, newHours, newPrice);
     }
 
     /**
@@ -439,10 +454,12 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     * - Update mappings
     * - Emit event
     */
-    function claimTicketBack(address from) public override onlyVIP {
+    function claimTicketBackFrom(address from) public override onlyVIP {
         TICKETS.claimTicketBack(from, msg.sender);
-        emit ticketClaimedBack( msg.sender);
+        emit ticketClaimedBack( from);
     }
+
+   
 
     /**
     * @notice Function used to return ticket that are currently on sale
@@ -450,6 +467,21 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     function getMarketTicket(uint256 ticketId) public view override {
         TICKETS.getMarketTicket(ticketId);
     }
+
+    
+    function approveForTickets( address spender, bool permission) public override {
+        require(MR_CRYPTO.balanceOf(msg.sender)>0,"You are not VIP user");
+        TICKETS.approveTicket(msg.sender, spender, permission);
+    }
+
+    function ticketAllowance(address owner, address spender) public override view returns(bool){
+        return TICKETS.ticketAllowance(owner, spender);
+    }
+
+    function isApproved(address user) public override view returns(bool){
+        return TICKETS.isApproved(user);
+    }
+
 
     /**
     * @notice Function used to return every ticket that are currently on sale
@@ -470,19 +502,6 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
         }
     }
 
-    /**
-    * @notice Function used to view how much time is left for lended Ticket
-    * @dev This function returns 3 parameters
-    * - address: ticketOwner
-    * - uint256: timeLeft 
-    * - bool: false if numTries == 0
-    *         true if numTries > 0
-    */
-    function getTicketDurationLeft(uint256 ticketId) public view override returns (address, uint256, bool) {
-        return TICKETS.getTicketDurationLeft(ticketId);
-    }
-    
-
 
     /**
     *@notice  Returns an address tickets data(time, tries , onwership and price)
@@ -501,7 +520,7 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     * @dev - Require users MrCrypro's balance is > 0
     */
     function isVip(address user) public view override returns(bool) {
-        if((MR_CRYPTO.balanceOf(user) > 0)) {
+        if((MR_CRYPTO.balanceOf(user) > 0) || TICKETS.isApproved(user)) {
             return true;
         } else{
             return false;
@@ -562,8 +581,8 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     *  - uri: uri wanted to be set
     */
     function setTokenUri(uint256 tokenId, string memory _uri) public override onlyOwnerOrAdmin {
-            require(bytes(s_uris[tokenId]).length == 0, "Can not set uri twice"); 
-            s_uris[tokenId] = _uri; 
+        require(bytes(s_uris[tokenId]).length == 0, "Can not set uri twice"); 
+        s_uris[tokenId] = _uri; 
     }
 
     ////////////////////////
@@ -595,12 +614,15 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
         racksToken.transfer(wallet, racksToken.balanceOf(address(this)));
     }
 
+
     function setInterfaces(address _caseOpenerAddress, address _ticketsAddress) public onlyOwner{
         CASE_OPENER  = ICaseOpener(_caseOpenerAddress);
         TICKETS = ITickets(_ticketsAddress);
+
     }
 
-    //////////////
+  
+     //////////////
     //  Getters // 
     //////////////
 

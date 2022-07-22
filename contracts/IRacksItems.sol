@@ -39,6 +39,7 @@ interface IRacksItems {
 
     function supplyOfItem(uint256 tokenId) external view returns(uint);
 
+
     function viewItems(address owner) external view returns(uint256[] memory);
 
     function listItemOnMarket(uint256 marketItemId, uint256 price) external;
@@ -53,21 +54,25 @@ interface IRacksItems {
 
     function getItemsOnSale() external view returns(itemOnSale[] memory);
 
-    function listTicket(address from, uint256 numTries, uint256 _hours, uint256 price) external;
+    function listTicketFrom(address from, uint256 numTries, uint256 _hours, uint256 price) external;
 
-    function unListTicket(address from) external;
+    function unListTicketFrom(address from) external;
 
-    function changeTicketConditions(address from, uint256 newTries, uint256 newHours, uint256 newPrice) external;
+    function changeTicketConditionsFrom( address from, uint256 newTries, uint256 newHours, uint256 newPrice) external;
 
     function buyTicket(uint256 ticketId) external;
 
-    function claimTicketBack(address from) external;
+    function claimTicketBackFrom(address from) external;
+
+    function approveForTickets( address spender, bool permission) external;
+
+    function ticketAllowance(address owner, address spender) external view returns(bool);
+
+    function isApproved(address user) external view returns(bool);
 
     function getMarketTicket(uint256 ticketId) external view;
 
     function getTicketsOnSale() external view returns(ITickets.caseTicket[] memory);
-
-    function getTicketDurationLeft(uint256 ticketId) external view returns (address, uint256, bool);
 
     function getUserTicket(address user) external view returns(uint256 durationLeft, uint256 triesLeft, uint ownerOrSpender, uint256 ticketPrice);
 
@@ -79,5 +84,5 @@ interface IRacksItems {
 
     function withdrawFunds(address wallet, uint256 amount) external;
 
-    function withdrawAllFunds(address wallet) external; 
+    function withdrawAllFunds(address wallet) external;
 }

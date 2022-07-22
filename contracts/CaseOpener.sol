@@ -50,7 +50,6 @@ contract caseItem is ICaseOpener , VRFConsumerBaseV2{
     s_requestIdOfUser[requestId] = user;  
   }
 
-  
   /**
   * @notice Used to get an actually Random Number -> to pick an item when openning a case
   * @dev Uses Chainlink VRF -> When the oracle returns the random number back calls the main contract passing the random number and the user that made the call
