@@ -7,7 +7,7 @@ import "./ICaseOpener.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";   
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol"; 
 
-contract caseItem is ICaseOpener , VRFConsumerBaseV2{
+contract caseOpener is ICaseOpener , VRFConsumerBaseV2{
 
   /// @notice contracts
   IRacksItems RacksItems;
