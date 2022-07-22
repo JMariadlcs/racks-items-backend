@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol"; 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol"; 
 
-contract RacksItemsv3 is IRacksItems, ERC1155, ERC1155Holder, AccessControl{ 
+contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{ 
    
     /**
     * @notice Enum for Contract state -> to let user enter call some functions or not
