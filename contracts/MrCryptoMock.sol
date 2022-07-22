@@ -11,7 +11,6 @@ contract MockMrCryptoMock is ERC721("MrCrypto NFT", "MrC"), Ownable {
     
     uint256 tokenCounter;
 
-    // implement the mint function
     function mint(address _to) public onlyOwner{ 
         tokenCounter++;
         _mint(_to, tokenCounter);                

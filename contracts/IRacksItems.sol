@@ -31,7 +31,9 @@ interface IRacksItems {
     event ticketBought(uint256 ticketId, address oldOwner, address newOwner, uint256 price);
     event ticketClaimedBack( address realOwner);
 
-    function openCase() external;
+    function openCase() external returns(bool success);
+
+    function fulfillCaseRequest(address _user,  uint _randomNumber) external;
 
     function caseLiquidity() external view returns(uint256[] memory);
 
@@ -51,17 +53,17 @@ interface IRacksItems {
 
     function getItemsOnSale() external view returns(itemOnSale[] memory);
 
-    function listTicket(uint256 numTries, uint256 _hours, uint256 price) external;
+    function listTicket(address from, uint256 numTries, uint256 _hours, uint256 price) external;
 
-    function unListTicket() external;
+    function unListTicket(address from) external;
 
-    function changeTicketConditions( uint256 newTries, uint256 newHours, uint256 newPrice) external;
+    function changeTicketConditions(address from, uint256 newTries, uint256 newHours, uint256 newPrice) external;
 
     function buyTicket(uint256 ticketId) external;
 
-    function claimTicketBack() external;
+    function claimTicketBack(address from) external;
 
-    function getMarketTicket(uint256 ticketId) external view returns( uint256 numTries, uint256 duration, uint256 price, address owner, uint256 timeWhenSold, bool isAvaliable);
+    function getMarketTicket(uint256 ticketId) external view;
 
     function getTicketsOnSale() external view returns(ITickets.caseTicket[] memory);
 

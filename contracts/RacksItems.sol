@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
+
 import "./ICaseOpener.sol";
 import "./IRacksItems.sol";
 import "./ITickets.sol";
@@ -19,11 +20,12 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     Active,
     Inactive
     }
-    //Interfaces
+
+    /// @notice Interfaces
     ICaseOpener CASE_OPENER;
     ITickets TICKETS;
 
-    /// @notice tokens
+    /// @notice Tokens
     IERC721Enumerable MR_CRYPTO;
     IERC20 racksToken;
 
@@ -36,6 +38,7 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     uint256 private casePrice; 
     ContractState private s_contractState;
     itemOnSale[] private _marketItems;
+    bytes [] public s_caseResults;
 
     /// @notice Mappings
     mapping(uint => uint) private s_maxSupply;
@@ -111,27 +114,57 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     * @notice Function used to 'open a case' and get an item
     * @dev 
     * - Should check that user owns a Ticket -> modifier
-    * - Should check that msg.value is bigger than casePrice
-    * - Should transfer msg.value to the contract
-    * - Internally calls randomNumber() 
-    * - Apply modular function for the randomNumber to be between 0 and totalSupply of items
-    * - Should choose an item
+    * - Should transfer case price to the contract
+    * - Internally calls the case opener contract to get a random number from Chainlink VRF 
     */
-    function openCase() public override supplyAvaliable contractIsActive  {  
-        if (MR_CRYPTO.balanceOf(msg.sender) < 1) {
-            (,,uint ownerOrSpender,)= TICKETS.getUserTicket(msg.sender);
-            require(ownerOrSpender==2, "User does not own a Ticket for openning the case.");
-        }
-
-        racksToken.transferFrom(msg.sender , address(this), casePrice);
-        uint item = CASE_OPENER.openCase();
-        _safeTransferFrom(address(this), msg.sender, item , 1,"");
-
-        if (!isVip(msg.sender)){ // Case opener is someone that bought a ticket
-            TICKETS.decreaseTicketTries(msg.sender);
-        }
-        emit CaseOpened(msg.sender, casePrice, item);
+    function openCase() public override supplyAvaliable contractIsActive returns(bool success) {  
+    if (MR_CRYPTO.balanceOf(msg.sender) < 1) {
+        (,,uint256 ownerOrSpender,)= TICKETS.getUserTicket(msg.sender);
+        require(ownerOrSpender==2, "User does not own a Ticket for openning the case.");
     }
+
+    racksToken.transferFrom(msg.sender, address(this), casePrice);
+    CASE_OPENER._generate(msg.sender);
+
+    if (!isVip(msg.sender)){ // Case opener is someone that bought a ticket
+        TICKETS.decreaseTicketTries(msg.sender);
+    }
+    return true;
+    }
+
+    /**
+    * @notice This function is called back by the Chainlink Oracle after requesting a random number
+    * The function receives a random number and the user that originally opened the case
+    * Apply modular function for the randomNumber to be between 0 and totalSupply of items
+    * Algorithmically pick an item based on the random number and statistics of its item
+    */
+
+    function fulfillCaseRequest(address _user, uint _randomNumber) external override {
+    require(msg.sender == address (CASE_OPENER));
+
+    uint256 caseSupply;
+    uint256 [] memory itemList = caseLiquidity();
+    for(uint256 i =0 ;i<itemList.length; i++){
+        caseSupply+=supplyOfItem(itemList[i]);
+    }
+    uint256 randomNumber = _randomNumber % caseSupply;
+    uint256 totalCount = 0;
+    uint256 item;
+
+    for(uint256 i = 0 ; i < itemList.length; i++) {
+        uint256 _newTotalCount = totalCount + supplyOfItem(itemList[i]) ;
+        if (randomNumber > _newTotalCount) {
+            totalCount = _newTotalCount;
+        } else {
+            item = itemList[i];
+            break;
+        }
+    }
+    s_caseResults.push(abi.encodePacked(_user, item));
+    _safeTransferFrom(address(this), _user ,  item , 1,"");
+    emit CaseOpened(msg.sender, casePrice, item);
+    }
+
 
     /**
     * @notice Returns all the items the case can drop
@@ -356,8 +389,8 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     * - Emit event
     *
     */
-    function listTicket(uint256 numTries, uint256 _hours, uint256 price) public override onlyVIP contractIsActive  {
-        TICKETS.listTicket(numTries, _hours , price, msg.sender);
+    function listTicket(address from, uint256 numTries, uint256 _hours, uint256 price) public override onlyVIP contractIsActive  {
+        TICKETS.listTicket(from, numTries, _hours , price, msg.sender);
         emit newTicketOnSale(msg.sender, numTries, _hours, price);
     }
 
@@ -367,8 +400,8 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     * - Should check that user has a listed ticket
     * - Emit event
     */
-    function unListTicket() public override onlyVIP contractIsActive  {
-        TICKETS.unListTicket(msg.sender);
+    function unListTicket(address from) public override onlyVIP contractIsActive  {
+        TICKETS.unListTicket(from, msg.sender);
         emit unListTicketOnSale(msg.sender);
     }
 
@@ -378,8 +411,8 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     * - Should check that user has a listed ticket
     * - Emit event
     */
-    function changeTicketConditions(uint256 newTries, uint256 newHours, uint256 newPrice) public override onlyVIP contractIsActive {
-        TICKETS.changeTicketConditions( newTries,  newHours,  newPrice, msg.sender);
+    function changeTicketConditions(address from, uint256 newTries, uint256 newHours, uint256 newPrice) public override onlyVIP contractIsActive {
+        TICKETS.changeTicketConditions(from, newTries,  newHours,  newPrice, msg.sender);
         emit ticketConditionsChanged(msg.sender, newTries, newHours, newPrice);
     }
 
@@ -406,15 +439,15 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
     * - Update mappings
     * - Emit event
     */
-    function claimTicketBack() public override onlyVIP {
-        TICKETS.claimTicketBack(msg.sender);
+    function claimTicketBack(address from) public override onlyVIP {
+        TICKETS.claimTicketBack(from, msg.sender);
         emit ticketClaimedBack( msg.sender);
     }
 
     /**
     * @notice Function used to return ticket that are currently on sale
     */
-    function getMarketTicket(uint256 ticketId) public view override returns( uint256 numTries, uint256 duration, uint256 price, address owner, uint256 timeWhenSold, bool isAvaliable) {
+    function getMarketTicket(uint256 ticketId) public view override {
         TICKETS.getMarketTicket(ticketId);
     }
 

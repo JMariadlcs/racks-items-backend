@@ -21,6 +21,15 @@ contract caseItem is ICaseOpener , VRFConsumerBaseV2{
   uint32 public constant NUM_WORDS = 2; 
   uint256 public s_randomWord;
 
+  /// @notice Mappings
+  mapping (uint => address) private s_requestIdOfUser; // maps each requestId to the user that made it
+
+  /// @notice Modifiers
+  modifier notForUsers(){
+    require(msg.sender==address(RacksItems),"This function is specially reserved for the main contract.");
+    _;
+  }
+
   constructor(address _racksItems,address vrfCoordinatorV2, bytes32 gasLane, uint64 subscriptionId, uint32 callbackGasLimit)VRFConsumerBaseV2(vrfCoordinatorV2){
     RacksItems = IRacksItems(_racksItems);
     /**
@@ -34,51 +43,23 @@ contract caseItem is ICaseOpener , VRFConsumerBaseV2{
 
   /**
   * @notice Function used to 'open a case' and get an item
+  * @dev Saves the requestId made to ChainlinkVRF in order to identify the user later
   */
-  function openCase() external override returns(uint)  {  
-    require(msg.sender == address(RacksItems));
-
-    uint caseSupply;
-    uint256 [] memory itemList = RacksItems.caseLiquidity();
-
-    for(uint i =0 ;i<itemList.length; i++){
-      caseSupply+=RacksItems.supplyOfItem(itemList[i]);
-    }
-
-    _randomNumber();
-    uint256 randomNumber = s_randomWord  % caseSupply;
-    uint256 totalCount = 0;
-    uint256 item;
-
-    for(uint256 i = 0 ; i < itemList.length; i++) {
-      uint256 _newTotalCount = totalCount + RacksItems.supplyOfItem(itemList[i]) ;
-      if (randomNumber > _newTotalCount) {
-        totalCount = _newTotalCount;
-      } else {
-        item = itemList[i];
-        break;
-      }
-    }
-    return item;
+  function _generate(address user) external override notForUsers { 
+    uint256 requestId = i_vrfCoordinator.requestRandomWords(i_gasLane, i_subscriptionId, REQUEST_CONFIRMATIONS, i_callbackGasLimit, NUM_WORDS);
+    s_requestIdOfUser[requestId] = user;  
   }
 
-
+  
   /**
   * @notice Used to get an actually Random Number -> to pick an item when openning a case
-  * @dev Uses Chainlink VRF -> call requestRandomWords method by using o_vrfCoordinator object
+  * @dev Uses Chainlink VRF -> When the oracle returns the random number back calls the main contract passing the random number and the user that made the call
+  * The main contract will then pick the item the user won based on the random number and will send it to him.
   * set as internal because is going to be called only when a case is opened
   */
-  function fulfillRandomWords(uint256 /* requestId */, uint256[] memory randomWords) internal override {
-      s_randomWord = randomWords[0]; // just in case random number is very long we apply modular function 
-  }
-
-  /**
-  * @notice Function to actually pick a winner 
-  * @dev 
-  * - randomWords -> array of randomWords
-  */
-  function _randomNumber() internal returns(uint256) {
-      uint256 s_requestedNumber = i_vrfCoordinator.requestRandomWords(i_gasLane, i_subscriptionId, REQUEST_CONFIRMATIONS, i_callbackGasLimit, NUM_WORDS);
-      return s_requestedNumber;
+  function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
+    address recipient = s_requestIdOfUser[requestId];
+    uint256 randomNumber = randomWords[0];
+    RacksItems.fulfillCaseRequest(recipient, randomNumber); 
   }
 }
