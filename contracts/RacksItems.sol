@@ -171,7 +171,7 @@ contract RacksItems is IRacksItems, ERC1155, ERC1155Holder, AccessControl{
              abi.encodePacked(_user, item)
         );
         _safeTransferFrom(address(this), _user ,  item , 1,"");
-        emit CaseOpened(msg.sender, casePrice, item);
+        emit CaseOpened(_user, casePrice, item);
 
     }
     /**
