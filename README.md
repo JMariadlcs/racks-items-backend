@@ -16,20 +16,40 @@ This repo contains 6 implemented Smart Contracts and its interfaces:
 
 🚨 Every detail is going to be described in this report.
 
+## Table of Contents
+
+1. [Who can participate?](#participate)
+   1. [VIP users](#vip)
+   2. [Normal users](#normal)
+2. [Features](#features)
+   1. [Users point of view](#usersview)
+   2. [Racks point of view](#racksview)
+3. [Randomness](#randomness)
+
+<a name="participate"/>
+
 ## Who can participate?
 
 Eligible users for participating in the above mentioned 'case openning' are the ones that meet 2 requirements:
 
+<a name="vip"/>
+
 - **VIP USERS**:
 
 1. Users that **OWNS AL LEAST 1 MrCrypto TOKEN** ✅.
+
+<a name="normal"/>
 
 - **NORMAL USERS**:
   Users that does not own a MrCrypto will also be able to open cases by:
 
 3. Buying a 'Case Ticket' from a VIP USER.
 
+<a name="Features"/>
+
 ## Features
+
+<a name="usersview"/>
 
 ### Users point of view
 
@@ -52,6 +72,8 @@ The intentions of the project could be various:
 - Clothes could be also combined with your MrCrypto to generate a new MrCrypto NFT by joining your already existing MrCrypto and your ERC1155 item token.
 - Users are also able to 'exchange' the items they got in the case. What does that means? This means that the user is changing the token for a physical item that will recive at home. If a user exchanges one of his items, the associated token to the item is going to be burned.
 
+<a name="racksview"/>
+
 ### Racks point of view
 
 Appart from the funny user experience that RacksItems proporcionates to the user it also have some befenits/functionalities for the owner/admins.
@@ -62,6 +84,8 @@ Appart from the funny user experience that RacksItems proporcionates to the user
 4. Structure of the project is designed in a way that the owner/admins can include new items each time they want.
 5. Owner/admins can regulate the supply of the items -> can introduce new items more "rare" if supply is lower compare with the rest of the items.
 6. Owner/admins are the ones wo also set up the uris metadata for the items.
+
+<a name="randomness"/>
 
 ## Randomness (Chainlink VRF)
 
