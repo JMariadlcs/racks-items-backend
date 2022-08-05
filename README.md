@@ -1,6 +1,6 @@
 # RACKS ITEMS 👕👖
 
-This is an implementation of a 'Tokenized Decentralized Commerce' where users are able to win items that are represented by ERC-1155 tokens on the Polygon Network. Only users that owns a MrCrypto (ERC721) are able to win theses clothers. Normal users that do not own the ERC721 token can buy "tickets" from users that do owns the ERC721 token in order to win items.
+This is an implementation of a 'Tokenized Decentralized Commerce' where users are able to win items that are represented by ERC-1155 tokens on the Polygon Network. Only users that owns a MrCrypto (ERC721) are able to win theses clothers. Normal users that do not own the ERC721 token can buy "tickets" from users that do owns the ERC721 token in order to win items. Normal users can also buy items on the Marketplace.
 
 The way users are able to win different clothes is by opening a **FULLY DENCENTRALIZED RANDOM CASE** by paying Racks Tokens.
 
@@ -62,7 +62,7 @@ Eligible users for participating in the above mentioned 'case openning' are the 
 
 #### Normal users:
 
-- [**Open cases without being vip**]: no VIP users will also have the chance of winning clothes by openning cases withouth having a MrCrypto. In order to do so, a normal user will need to buy a ticket on the RacksItems MarketPlace.
+- [**Open cases without being vip**]: no VIP users will also have the chance of winning clothes by openning cases withouth having a MrCrypto. In order to do so, a normal user will need to buy a ticket on the RacksItems MarketPlace. Normal users can also directly buy an item on the Marketplace.
 
 👉🏼 At this point you may be thinking... **what is the intention of winning tokenized clothes/items?**
 
